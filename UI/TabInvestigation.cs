@@ -138,7 +138,7 @@ public sealed class TabInvestigation : TabBase
 			items.Add(export);
 		}
 
-		List.SetItems(items);
+		ListPanel.SetItems(items);
 		SetStatus(L10n.Text("UI.Investigation.Status", RuntimeMonitor.Count.ToString(), PerformanceTracker.SpikeCount.ToString()));
 	}
 }

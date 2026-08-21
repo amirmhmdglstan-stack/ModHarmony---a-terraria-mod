@@ -11,11 +11,10 @@ namespace ModHarmony.Common.Detection;
 /// API (AssemblyManager.GetDependencies) plus best-effort .tmod metadata:
 ///  • dependency cycles among loaded mods (load order between them is decided
 ///    by tModLoader heuristics and can change between versions);
-///  • declared version requirements that are not met;
 ///  • declared optional (weak) dependencies that are not loaded.
-/// Missing hard dependencies are NOT reported: tModLoader refuses to load a mod
-/// with a missing hard dependency, so this situation cannot occur for loaded
-/// mods.
+/// Missing hard dependencies and unmet version requirements are NOT reported:
+/// tModLoader refuses to load a mod in either situation, so they cannot occur
+/// for loaded mods.
 /// </summary>
 public sealed class DependencyDetector : IConflictDetector
 {
@@ -47,29 +46,13 @@ public sealed class DependencyDetector : IConflictDetector
 			context.LoadOrderWarnings.Add($"dependency cycle: {string.Join(", ", mods)}");
 		}
 
-		// --- Unmet version expectations ------------------------------------
-		foreach (var mod in context.ExceptSelf()) {
-			foreach (var expectation in mod.VersionExpectations) {
-				if (expectation.IsMet || expectation.IsWeak)
-					continue;
-				var target = context.Get(expectation.ModName);
-				if (target == null)
-					continue;
-				var conflict = new Conflict {
-					Id = Conflict.MakeStableId(Id, "dependency.version", new[] { mod.Name, target.Name }),
-					DetectorId = Id,
-					SystemId = "dependency.version",
-					Severity = Severity.Low,
-					Confidence = Confidence.Confirmed,
-					Mods = new List<string> { mod.Name, target.Name }
-				};
-				conflict.Evidence.Add(new Evidence(EvidenceKind.Dependency, null,
-					"Dependency.VersionMismatch", mod.Name, expectation.ModName,
-					expectation.RequiredVersion?.ToString() ?? "?", target.Version?.ToString() ?? "?"));
-				result.Add(conflict);
-			}
+		// NOTE: unmet hard version requirements are NOT reported here because
+		// tModLoader refuses to load a mod whose declared version requirements
+		// are not met (ModOrganizer.EnsureTargetVersionsMet). Such a situation
+		// cannot exist among loaded mods, so reporting it would be dishonest.
 
-			// --- Missing optional dependencies ------------------------------
+		// --- Missing optional (weak) dependencies --------------------------
+		foreach (var mod in context.ExceptSelf()) {
 			foreach (var missing in mod.MissingOptionalDependencies) {
 				var conflict = new Conflict {
 					Id = Conflict.MakeStableId(Id, "dependency.optional", new[] { mod.Name, missing }),

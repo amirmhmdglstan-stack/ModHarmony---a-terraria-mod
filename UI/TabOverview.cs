@@ -122,7 +122,7 @@ public sealed class TabOverview : TabBase
 			SetStatus(L10n.Text("UI.Overview.RescanQueued"));
 		}));
 
-		List.SetItems(items);
+		ListPanel.SetItems(items);
 		SetStatus(L10n.Text("UI.Footer", ScanState.SessionId, ScanState.ScanRunCount.ToString()));
 	}
 

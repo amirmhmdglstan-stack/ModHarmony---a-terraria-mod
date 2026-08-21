@@ -33,7 +33,7 @@ public sealed class TabSystems : TabBase
 
 		var ctx = ScanState.Context;
 		if (ctx == null) {
-			List.SetItems(new[] { new MHBodyText(L10n.Text("UI.NoScan")) });
+			ListPanel.SetItems(new[] { new MHBodyText(L10n.Text("UI.NoScan")) });
 			SetStatus("");
 			return;
 		}
@@ -49,7 +49,7 @@ public sealed class TabSystems : TabBase
 			items.Add(BuildRow(system, count));
 		}
 
-		List.SetItems(items);
+		ListPanel.SetItems(items);
 		SetStatus(L10n.Text("UI.Systems.Count", ctx.SystemOverlapCounts.Count.ToString()));
 	}
 
@@ -149,7 +149,7 @@ public sealed class TabSystems : TabBase
 			items.Add(new MHBodyText(L10n.Text("UI.Systems.ArbitrationUnavailable")));
 		}
 
-		List.SetItems(items);
+		ListPanel.SetItems(items);
 		SetStatus(systemId);
 	}
 

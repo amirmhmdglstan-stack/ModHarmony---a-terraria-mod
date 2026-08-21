@@ -91,7 +91,7 @@ public sealed class TabSettings : TabBase
 		AddSetting(items, L10n.Text("UI.Settings.PathMods"), Terraria.ModLoader.ModLoader.ModPath);
 		AddSetting(items, L10n.Text("UI.Settings.PathData"), Common.Arbitration.ArbitrationStore.SaveDirectory);
 
-		List.SetItems(items);
+		ListPanel.SetItems(items);
 	}
 
 	private static void AddSetting(List<UIElement> items, string label, string value)

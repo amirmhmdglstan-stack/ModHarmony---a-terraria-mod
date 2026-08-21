@@ -206,7 +206,7 @@ public static class ReportGenerator
 		try {
 			sb.AppendLine(L10n.Text("Report.InvestigationContext",
 				MainSavePathProvider.Get(),
-				Terraria.Main.worldName,
+				Terraria.Main.ActiveWorldFileData?.Name ?? "?",
 				Terraria.Main.netMode == 2 ? L10n.Text("Report.ModeServer") : L10n.Text("Report.ModeClient")));
 		}
 		catch {

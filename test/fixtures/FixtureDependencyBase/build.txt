@@ -1,0 +1,4 @@
+author = Test Fixtures
+displayName = Fixture Dependency Base
+version = 2.1.0
+buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*

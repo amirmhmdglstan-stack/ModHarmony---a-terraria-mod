@@ -17,7 +17,7 @@ public abstract class TabBase : UIElement
 
 	protected UIText TitleText;
 	protected UIElement Toolbar;
-	protected MHScrollPanel List;
+	protected MHScrollPanel ListPanel;
 	protected UIText StatusText;
 
 	private readonly List<UIElement> _toolbarChildren = new();
@@ -43,12 +43,12 @@ public abstract class TabBase : UIElement
 		};
 		Append(Toolbar);
 
-		List = new MHScrollPanel {
+		ListPanel = new MHScrollPanel {
 			Top = new StyleDimension(72, 0f),
 			Width = StyleDimension.Fill,
 			Height = new StyleDimension(-100, 1f)
 		};
-		Append(List);
+		Append(ListPanel);
 
 		StatusText = new UIText("", 0.7f) {
 			TextColor = MHColors.TextDim,

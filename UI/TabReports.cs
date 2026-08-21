@@ -95,6 +95,6 @@ public sealed class TabReports : TabBase
 				items.Add(new MHBodyText(line, 0.7f, MHColors.Text));
 		}
 
-		List.SetItems(items);
+		ListPanel.SetItems(items);
 	}
 }

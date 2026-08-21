@@ -149,7 +149,7 @@ public sealed class TabConflicts : TabBase
 		if (shown == 0)
 			items.Add(new MHBodyText(L10n.Text("UI.Conflicts.NoResults")));
 
-		List.SetItems(items);
+		ListPanel.SetItems(items);
 		SetStatus(L10n.Text("UI.Conflicts.Count", shown.ToString(), conflicts.Count.ToString()));
 	}
 

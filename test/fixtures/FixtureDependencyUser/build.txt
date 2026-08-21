@@ -1,0 +1,6 @@
+author = Test Fixtures
+displayName = Fixture Dependency User
+version = 1.0.0
+modReferences = FixtureDependencyBase
+weakReferences = FixtureOptionalFriend
+buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*

@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Standalone test harness for ModHarmony's detection logic.
+    Compiles the pure data-processing parts of the mod (Core + Detection +
+    ArbitrationManager — no UI, no game I/O) and runs assertions against
+    synthetic modpacks.
+
+    To run (on a machine with tModLoader installed / tML references available):
+      1. Copy this folder next to a copy of tModLoader.targets (from Mod Sources),
+         or build with -p:tMLPath=... pointing at the tModLoader install.
+      2. dotnet run --project test/TestHarness
+  -->
+  <Import Project="tModLoader.targets" Condition="Exists('tModLoader.targets')" />
+  <Import Project="..\..\tModLoader.targets" Condition="!Exists('tModLoader.targets') and Exists('..\..\tModLoader.targets')" />
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <AssemblyName>ModHarmonyTestHarness</AssemblyName>
+    <RootNamespace>ModHarmony.Tests</RootNamespace>
+    <!-- Only compile the mod code; never package this as a mod. -->
+    <BuildMod>false</BuildMod>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\Common\Core\Enums.cs" Link="Core\Enums.cs" />
+    <Compile Include="..\..\Common\Core\Evidence.cs" Link="Core\Evidence.cs" />
+    <Compile Include="..\..\Common\Core\ModFacts.cs" Link="Core\ModFacts.cs" />
+    <Compile Include="..\..\Common\Core\Conflict.cs" Link="Core\Conflict.cs" />
+    <Compile Include="..\..\Common\Core\HookCatalog.cs" Link="Core\HookCatalog.cs" />
+    <Compile Include="..\..\Common\Core\SystemRegistry.cs" Link="Core\SystemRegistry.cs" />
+    <Compile Include="..\..\Common\Core\HealthCalculator.cs" Link="Core\HealthCalculator.cs" />
+
+    <Compile Include="..\..\Common\Detection\IConflictDetector.cs" Link="Detection\IConflictDetector.cs" />
+    <Compile Include="..\..\Common\Detection\DetectorContext.cs" Link="Detection\DetectorContext.cs" />
+    <Compile Include="..\..\Common\Detection\OverlapAnalyzer.cs" Link="Detection\OverlapAnalyzer.cs" />
+    <Compile Include="..\..\Common\Detection\HookOverlapDetector.cs" Link="Detection\HookOverlapDetector.cs" />
+    <Compile Include="..\..\Common\Detection\GlobalClassOverlapDetector.cs" Link="Detection\GlobalClassOverlapDetector.cs" />
+    <Compile Include="..\..\Common\Detection\ModPlayerOverlapDetector.cs" Link="Detection\ModPlayerOverlapDetector.cs" />
+    <Compile Include="..\..\Common\Detection\ModSystemOverlapDetector.cs" Link="Detection\ModSystemOverlapDetector.cs" />
+    <Compile Include="..\..\Common\Detection\RecipeDetector.cs" Link="Detection\RecipeDetector.cs" />
+    <Compile Include="..\..\Common\Detection\DependencyDetector.cs" Link="Detection\DependencyDetector.cs" />
+    <Compile Include="..\..\Common\Detection\AssetDetector.cs" Link="Detection\AssetDetector.cs" />
+
+    <Compile Include="..\..\Common\Arbitration\ArbitrationGroup.cs" Link="Arbitration\ArbitrationGroup.cs" />
+    <Compile Include="..\..\Common\Arbitration\ArbitrationManager.cs" Link="Arbitration\ArbitrationManager.cs" />
+
+    <Compile Include="..\..\Common\Utilities\L10n.cs" Link="Utilities\L10n.cs" />
+    <Compile Include="..\..\Common\Utilities\Log.cs" Link="Utilities\Log.cs" />
+  </ItemGroup>
+
+</Project>

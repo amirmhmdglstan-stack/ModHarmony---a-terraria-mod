@@ -1,0 +1,4 @@
+author = Test Fixtures
+displayName = Fixture World Tweaks
+version = 1.0.0
+buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*

@@ -62,7 +62,7 @@ public static class PerformanceTracker
 					FrameMs = ms,
 					WorldTime = ""
 				};
-				try { spike.WorldTime = Main.worldName + " @ " + (Main.dayTime ? "day" : "night"); }
+				try { spike.WorldTime = (Main.ActiveWorldFileData?.Name ?? "?") + " @ " + (Main.dayTime ? "day" : "night"); }
 				catch { /* best effort */ }
 
 				if (Spikes.Count >= MaxSpikes)

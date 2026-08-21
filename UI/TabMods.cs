@@ -68,7 +68,7 @@ public sealed class TabMods : TabBase
 
 		var ctx = ScanState.Context;
 		if (ctx == null || ctx.Mods.Count == 0) {
-			List.SetItems(new[] { new MHBodyText(L10n.Text("UI.NoScan")) });
+			ListPanel.SetItems(new[] { new MHBodyText(L10n.Text("UI.NoScan")) });
 			SetStatus("");
 			return;
 		}
@@ -100,7 +100,7 @@ public sealed class TabMods : TabBase
 		if (rows.Count == 0)
 			rows.Add(new MHBodyText(L10n.Text("UI.Mods.NoResults")));
 
-		List.SetItems(rows);
+		ListPanel.SetItems(rows);
 		SetStatus(L10n.Text("UI.Mods.Count", rows.Count.ToString(), ctx.Mods.Count.ToString()));
 	}
 
@@ -159,7 +159,7 @@ public sealed class TabMods : TabBase
 
 		if (mod == null) {
 			items.Add(new MHBodyText(L10n.Text("UI.Mods.NotFound")));
-			List.SetItems(items);
+			ListPanel.SetItems(items);
 			SetStatus("");
 			return;
 		}
@@ -206,7 +206,7 @@ public sealed class TabMods : TabBase
 				var sys = SystemRegistry.Get(kv.Key);
 				items.Add(new MHBodyText($"  • {SafeName(sys.NameKey)} — {kv.Value}", 0.75f));
 			}
-			if (ModHarmony.Instance?.GetType().Assembly != null && ScanState.Context != null && ScanState.Context.Config?.DeveloperMode == true) {
+			if (ScanState.Context?.Config?.DeveloperMode == true) {
 				foreach (var hook in mod.Hooks.Take(40)) {
 					items.Add(new MHBodyText($"      {hook.BaseTypeName}.{hook.MethodName} ({hook.DeclaringTypeFullName})", 0.65f, MHColors.TextDim));
 				}
@@ -240,7 +240,7 @@ public sealed class TabMods : TabBase
 			}
 		}
 
-		List.SetItems(items);
+		ListPanel.SetItems(items);
 		SetStatus(L10n.Text("UI.Mods.DetailStatus", mod.DisplayNameSafe));
 	}
 

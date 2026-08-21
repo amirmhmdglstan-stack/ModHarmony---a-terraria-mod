@@ -75,7 +75,7 @@ public sealed class TabArbitration : TabBase
 			}
 		}
 
-		List.SetItems(items);
+		ListPanel.SetItems(items);
 		SetStatus(L10n.Text("UI.Arbitration.Status", groups.Count.ToString()));
 	}
 

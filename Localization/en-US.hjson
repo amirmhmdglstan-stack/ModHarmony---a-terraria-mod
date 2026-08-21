@@ -69,7 +69,7 @@ Mods: {
 			}
 			Dependency: {
 				Name: Dependency analysis
-				Description: "Flags dependency cycles, unmet version requirements and missing optional dependencies."
+				Description: "Flags dependency cycles and missing optional dependencies. Missing hard dependencies and unmet version requirements are not reported because tModLoader refuses to load such mods."
 			}
 			ILHooks: {
 				Name: IL / runtime patching
@@ -109,7 +109,6 @@ Mods: {
 			}
 			Dependency: {
 				Cycle: "Dependency cycle detected: {0}. The load order between these mods is decided by tModLoader heuristics and can change when a mod is updated."
-				VersionMismatch: "{0} declares it needs {1} version {2}, but {1} {3} is loaded."
 				MissingOptional: "{0} declares an optional dependency on {1}, which is not loaded. Features that depend on {1} are inactive."
 			}
 			Asset: {
