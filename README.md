@@ -1,276 +1,290 @@
 # ModHarmony
 
-**A multi-mod compatibility analyzer and conflict manager for tModLoader.**
+**A multi-mod compatibility analyzer for tModLoader — made so normal players can actually use it.**
 
-When you run a large Terraria modpack, mods constantly interact: two mods both
-patch NPC AI, both edit recipes for the same item, both register global hooks
-that change how damage is calculated. Most of the time nothing bad happens —
-but sometimes it does, and when a mysterious bug shows up it is very hard to
-tell *which mods could be involved*.
+When you run a big Terraria modpack, mods constantly bump into each other: two
+mods both change enemy behavior, both add recipes for the same item, both tweak
+how damage works. Most of the time nothing bad happens. But when a mysterious
+bug shows up, it is really hard to tell *which mods could be involved*.
 
-ModHarmony gives you a much better answer to that question:
+ModHarmony answers that question for you:
 
-> **Detect → Explain → Investigate → Suggest → Safely Resolve when possible.**
+> **Detect → Explain → Investigate → Suggest → (sometimes) Resolve**
 
-It does **not** pretend every interaction is a bug, and it does **not** magically
-"fix" mod conflicts. Every finding carries a severity, a confidence level, and
-plain-language evidence explaining exactly why it was flagged and what it does
-— and does not — prove.
+It shows you **what** is happening between your mods, **why** it was flagged, in
+plain language, and **what you can do about it**. It never pretends an
+interaction is a bug, and it never changes your mods without you asking.
 
 ---
 
-## What ModHarmony does
+## Quick start (2 minutes)
 
-- **Scans your loaded mods** once per load (and on demand) using only public,
-  safe tModLoader APIs:
-  - **Hook overlap** — multiple mods overriding hooks in the same game system
-    (e.g. both override `GlobalNPC.AI`).
-  - **Global class overlap** — mods registering the same `Global*` base class.
-  - **ModPlayer overlap** — overlapping player behavior.
-  - **ModSystem overlap** — overlapping update loops, world generation, UI
-    layers, recipe phases.
-  - **Recipe interactions** — multiple mods crafting the same item; shared
-    recipe groups (both *confirmed* — tModLoader exposes the registering mod).
-  - **Dependency analysis** — dependency cycles; missing optional dependencies.
-    (Missing hard dependencies and unmet version requirements are *not*
-    reported: tModLoader refuses to load such mods, so they cannot occur.)
-  - **IL / runtime patching** — static, verifiable signals that a mod patches
-    game code (IL./On. namespaces, `IL_Terraria_*` methods, MonoMod/Cecil
-    references).
-  - **Asset/install collisions** — duplicate `.tmod` files claiming the same
-    internal name.
-- **Explains** every finding with evidence and a "why is this here?" section.
-- **Investigation Mode** — optional runtime diagnostics: captures exceptions
-  whose stack traces involve loaded mods (bounded ring buffer, gated by config)
-  and samples frame times. One click produces an "Analyze Current Situation"
-  report.
-- **Reports** — full compatibility report exported to a text file, plus a
-  compact "community summary" for Discord/GitHub issues. Fully offline.
-- **"What changed?"** — snapshots of every scan are stored locally; the next
-  session shows added/removed/updated mods, new or resolved conflicts, severity
-  changes, load-order changes, dependency changes and new runtime errors.
-- **Modpack Health** — a transparent *heuristic* score with an itemized
-  breakdown of exactly how it was calculated (never presented as objective).
-- **Arbitration (opt-in)** — for supported systems, lets you choose which mod
-  "wins" when several mods compete: manual priority, load order, seeded random,
-  weighted random, first/last registered. Deterministic, persisted, locked
-  until you change it.
-- **Safe Diagnostics Mode** — detection only, no arbitration, maximum
-  diagnostics. The recommended mode when troubleshooting.
-
-## What ModHarmony does NOT do
-
-- It does **not** claim two mods are "definitely incompatible" because they
-  override the same hook. Hook overlap is evidence of *interaction*, not proof
-  of *incompatibility* — the UI and reports say so explicitly.
-- It does **not** inspect, hook, detour, or modify other mods' code. Reflection
-  is used only to *read* public metadata; nothing is injected anywhere.
-- It does **not** need an internet connection. Everything is local.
-- It does **not** invent detections it cannot back up. If a situation cannot be
-  observed through the public API, it is not reported (and the surrounding
-  architecture documents the limitation instead).
-- It does **not** require other mods to install it (it adds no content).
-
----
-
-## Installation
-
-> **The folder name must be exactly `ModHarmony`** — tModLoader derives the mod's
-> internal name from the folder name and requires it to match the code's
-> namespace (otherwise: *"Namespace and Folder name do not match"*). The release
-> zip below already has the folder named correctly.
-
-1. Download **`ModHarmony-v0.1.2.zip`** from the
+1. Download **`ModHarmony-v0.1.4.zip`** from the
    [releases page](https://github.com/amirmhmdglstan-stack/ModHarmony---a-terraria-mod/releases)
-   (or clone the `arena/01a023f9-modharmony-a-terraria-mod` branch and rename the
-   folder to `ModHarmony`).
-2. Delete any older `ModHarmony*` folders from Mod Sources, then copy the
-   `ModHarmony` folder into your tModLoader **Mod Sources** folder
-   (`Documents/My Games/Terraria/tModLoader/ModSources/ModHarmony`).
-2. Open `ModHarmony.csproj` in Visual Studio (or run
-   `dotnet build ModHarmony.csproj` with the tModLoader .NET 8 SDK setup).
-3. Build, then reload mods in tModLoader and enable **ModHarmony**.
-4. Open the ModHarmony UI with the default hotkey **`N`** (configurable under
-   Mod Settings → ModHarmony → keybinds).
+   (or from the repository at
+   `ModHarmony-v0.1.4.zip` on the `arena/01a023f9-modharmony-a-terraria-mod` branch).
+2. Extract it — the folder inside is **already named `ModHarmony`** (tModLoader
+   needs the folder name to match the mod's name, so don't rename it).
+3. Delete any older `ModHarmony*` folders from
+   `Documents\My Games\Terraria\tModLoader\ModSources\`, then copy the
+   `ModHarmony` folder there.
+4. Start tModLoader → **Workshop** (paint roller) → **Develop Mods** → click
+   **Build & Reload** on ModHarmony.
+5. Enter a world and press **`N`** to open ModHarmony.
 
-> The project targets the current stable tModLoader (1.4.4 branch, .NET 8,
-> e.g. v2026.06.x). It requires the `tModLoader.targets` file that the game
-> places in the Mod Sources folder (the csproj imports it automatically).
+> New here? Start with the **Overview** tab — it tells you exactly what to look
+> at first.
 
-## Features
+---
 
-### Mods tab
-Every loaded mod shows: internal name (stable id), display name, version,
-built-for tML version, author/homepage (when readable from the local mod file),
-side, load-order position, dependencies, optional dependencies, detected hooks
-grouped by game system, registered content counts, runtime-patch signals, and
-the conflicts that involve it.
+## The main screen, feature by feature
 
-### Conflicts tab
-Search and filter by severity, confidence, and resolvability. Each conflict
-card expands to show evidence per mod, the "why is this here?" explanation,
-arbitration status, developer details (in Developer Mode) and a mute toggle.
+ModHarmony has **8 tabs**. This is what each one is for and how to use it.
 
-### Systems tab
-The registry of game systems (NPC AI, item damage, world generation, …), which
-mods touch each one, which conflicts exist on it, and whether ModHarmony can
-arbitrate it.
+### 1. Overview — "is my modpack OK?"
 
-### Investigation tab
-Enables/disables Investigation Mode, lists captured runtime events with likely
-involved mods (stack-trace presence ≠ blame, the UI says so), shows frame-time
-sampling, and generates "Analyze Current Situation" reports.
+**What it is:** Your dashboard. Shows the **Modpack Health** score (a rough
+guide, not a measurement), the things that need your attention, what changed
+since your last session, and quick actions.
 
-### Arbitration tab
-Per-system arbitration groups. Only systems with a technically safe mechanism
-are resolvable; everything else is listed as
-"Detection available — automatic resolution unavailable."
+**How to use it:**
+- Look at the **verdict line**: *"Looking good!"*, *"A few things to check."*,
+  or *"Several things to investigate."* — that's the simple answer.
+- Click **"Show how this is calculated"** if you want to see every point that
+  was deducted and why (so the score is never a mystery).
+- Check **"Things that need your attention:"** — this counts the red/orange
+  flags. If it says 0 but you still have a bug, go to the **Investigate** tab.
+- **"What changed since your last session?"** — added/updated/removed mods and
+  new flags. Extremely useful right after you add a mod and a bug appears.
+- **Quick actions** at the bottom: *Analyze Current Situation* (jumps to
+  Investigate), *Save Full Report*, *Save Short Summary*, *Manage Arbitration*,
+  *Scan Again* (re-run the scan without reloading mods).
 
-### Reports tab
-Export the full report to `{SavePath}/ModHarmony/reports/`, copy the community
-summary to the clipboard, preview the last report.
+### 2. Conflicts — "what's actually flagged?"
 
-## Conflict severity & confidence
+**What it is:** Every detected interaction between your mods, sorted by
+importance. This is the heart of ModHarmony.
 
-Severity (what could happen if this becomes a real problem):
+**How to use it:**
+- Each card shows: a colored **severity label** (High risk / Concerning / Watch
+  out / Low / Informational), **which mods** are involved, and **which part of
+  the game** (e.g. "Enemy behavior").
+- Under the title you get two plain-language lines:
+  - **a summary** — e.g. *"Both mods change the same part of the game."*
+  - **"What you can do:"** — a concrete suggestion, e.g. *"If you see bugs with
+    this part of the game, disable one of these mods and test again."*
+- Click **"Technical details"** if you want the raw evidence (hook names, etc.).
+  Most people never need this.
+- **Hide this** on a card hides it permanently (and unhide it later if you
+  change your mind).
+- **Filters** along the top: by severity, by certainty, by "fixable or not",
+  plus a search box. There's also a toggle to show/hide the quiet (low/info)
+  items — they are hidden by default so you're not overwhelmed.
 
-| Legend | Meaning |
+**Rule of thumb:** start at the top — red and orange cards are the ones most
+likely to explain a real bug.
+
+### 3. Mods — "what is each mod doing?"
+
+**What it is:** A list of all your loaded mods, each with a **risk dot**
+(green → red based on its flags) so you can spot the troublemakers at a glance.
+
+**How to use it:**
+- Click any mod to open its detail screen:
+  - **metadata** — internal name, version, author, load order, dependencies,
+    optional dependencies (and which ones are missing);
+  - **"What this mod changes"** — its hooks grouped by game system;
+  - **"What this mod adds"** — its content counts;
+  - **"Flags involving this mod"** — its conflicts, so you can see one mod's
+    whole story in one place.
+- Use the filters (Flagged / Red-orange / Deep code changes) and the search box
+  to find what you need.
+
+### 4. Systems — "which parts of the game have several mods?"
+
+**What it is:** The game systems (Enemy behavior, NPC spawning, Recipes, World
+generation, UI, …) with a count of how many mods touch each one.
+
+**How to use it:** click a system to see *which mods* touch it, *which flags*
+exist on it, and whether ModHarmony can arbitrate it. Great when you want to
+know "who's touching enemy spawning?" before hunting a spawn-related bug.
+
+### 5. Investigate — "I have a bug, help me find it"
+
+**What it is:** **Investigation Mode** — ModHarmony watches while you play and
+collects two useful things:
+- **errors** whose technical stack traces point at your mods (with a note that
+  this is a hint, not a verdict);
+- **performance** — slow-frame sampling.
+
+**How to use it (the bug-hunting workflow):**
+1. Click **"Turn on Investigation Mode"** (it costs a little performance, so
+   it's off by default).
+2. Go play and **reproduce your bug**.
+3. Come back → the **"Errors captured"** list shows what happened and which
+   mods may be involved.
+4. Click **"Analyze Current Situation"** → ModHarmony builds a report combining
+   your mod list, the captured errors, the mods involved, and step-by-step
+   recommendations.
+5. Click **"Save report to file"** and share it when you ask for help.
+
+**How to use it (the "is my game just slow?" check):** turn on Investigation
+Mode, play a bit, then read the **Performance** line. It shows your average
+frame time and how many slow frames happened. (It can't name which mod is slow —
+it's an estimate of pacing only.)
+
+### 6. Arbitration — "when two mods fight over a setting, who wins?"
+
+**What it is:** For a small number of systems, ModHarmony can let you **pick
+which mod wins** when several mods compete. It is **off by default** and only
+affects mods that opt in — ModHarmony never patches other mods.
+
+**How to use it:**
+1. Open the **Arbitration** tab. "Systems you can control" are the fixable ones;
+   "Seen but not fixable" are just listed for transparency.
+2. Click the **Strategy** button to cycle through the options:
+   - **Disabled** — do nothing (default).
+   - **Manual priority** — you rank the mods (▲/▼ buttons); highest wins.
+   - **Load order** — the mod that loads first wins.
+   - **Random (seeded)** — a fair coin flip, but **stable**: the result is
+     locked until you click **Roll Again**.
+   - **Weighted random (seeded)** — like random, but each mod can have a
+     percentage chance (adjust with +/−; the chance is shown next to each mod).
+   - **First / Last registered** — the first or last mod in the list wins.
+3. When you like a result, click **Lock This Choice** so it can't change.
+4. Everything is remembered between sessions.
+
+> Random choices never change during combat or gameplay — they are decided once
+> and stay stable until you explicitly re-roll.
+
+### 7. Reports — "save proof for when you ask for help"
+
+**What it is:** Two export options, both saved to your computer as text files
+(no internet needed):
+- **Save Full Report** — everything: mod list with versions, all flags with
+  evidence, arbitration state, runtime errors, health calculation, and "what to
+  try".
+- **Save Short Summary** — a compact block: versions, mod list, worth-attention
+  flags, errors, systems. Perfect to paste into a Discord/GitHub issue.
+
+**Where files go:** `Documents\My Games\Terraria\tModLoader\ModHarmony\reports\`
+(inside your tModLoader save folder; the exact path is shown after saving).
+
+**How to use it:** after a bug-hunting session (see Investigate), save the full
+report and attach it when you ask for help — helpers instantly see your exact
+mod list and versions.
+
+### 8. Settings — "what's the current state?"
+
+**What it is:** A summary of your configuration plus **scanner health** (which
+scanners ran, which failed) and the paths ModHarmony uses.
+
+**How to use it:** click **"Open ModHarmony Config"** to open the real settings
+screen (see **Configuration** below).
+
+---
+
+## Severity & certainty — what the colors mean
+
+Every flag has two labels:
+
+**Severity** = how much this *could* matter if it becomes a real problem:
+
+| Label | What it means |
 |---|---|
-| 🟢 Informational | Interaction detected; no risk implied |
-| 🔵 Low | Unlikely to matter, flagged for transparency |
-| 🟡 Potential conflict | Could interact in ways that matter |
-| 🟠 Significant conflict | Real chance of observable interference |
-| 🔴 High risk | Most likely candidates for hard-to-explain bugs |
-| ⚫ Unknown | Something detected, meaning not assessable |
+| 🟢 Informational | Just information. No risk implied. |
+| 🔵 Low | Unlikely to matter, shown for transparency. |
+| 🟡 Watch out | Could interact in ways that matter. |
+| 🟠 Concerning | Real chance of an observable problem. |
+| 🔴 High risk | The most likely candidates for hard-to-explain bugs. |
+| ⚫ Unknown | Something was detected, but its meaning can't be assessed. |
 
-Confidence (how sure we are the *interaction* exists — not whether it causes a
-bug): **Confirmed** (read directly from tModLoader), **Strong** (direct
-unambiguous evidence), **Possible** (indirect evidence), **Unknown**.
+**Certainty** = how sure ModHarmony is that the interaction *exists* (not
+whether it causes a bug):
+- **Confirmed** — read directly from tModLoader.
+- **Strong** — direct, unambiguous evidence.
+- **Possible** — indirect evidence.
+- **Unknown** — can't be assessed.
 
-Colors are never the only indicator: every chip includes its text label.
+Colors are never the only indicator — every item has its text label too.
 
-## Arbitration
-
-Arbitration is strictly opt-in. Default behavior is *detect and explain*; no
-behavior is modified until you:
-
-1. enable **Enable arbitration** in the ModHarmony config,
-2. choose a strategy for a group in the Arbitration tab.
-
-Supported strategies: **Manual priority**, **Load order**, **Random (seeded)**,
-**Weighted random (seeded)**, **First registered**, **Last registered**,
-**Disabled**.
-
-### Random arbitration
-- Uses a controlled `System.Random` with a fixed seed.
-- Seed `auto` derives deterministically from the group id + master config seed,
-  so the same pack + config always rolls the same winner.
-- The winner is resolved once, **never per frame**; gameplay cannot randomly
-  change during combat.
-- **Regenerate Selection** rolls a new seed; **Lock** freezes the current
-  decision. Both are persisted.
-
-### Weighted random
-Each candidate has a weight (default 100). Weights are validated (no negatives,
-not all zero); invalid weights fall back to uniform selection. The effective
-probability is `weight / Σweights` and is shown next to each candidate.
-
-### What can actually be arbitrated
-ModHarmony only arbitrates systems where it owns a technically defensible
-mechanism. Built-in arbitration points:
-
-| Point | Effect |
-|---|---|
-| `npc.spawn` | The winning mod's registered factor is applied to NPC spawn rate (factor < 1 = fewer spawns, 1 = no change). |
-| `npc.damage` | The winning mod's registered multiplier is applied to damage dealt to NPCs (1 = no change). |
-
-These points only affect mods that **opt in** by registering a value:
-
-```csharp
-ModHarmony.Call("RegisterArbitrableValue", "npc.spawn", Mod.Name, 0.75f, "25% fewer spawns");
-// query the current winner's value:
-float factor = (float)ModHarmony.Call("GetArbitratedValue", "npc.spawn");
-// or the winning mod's name:
-string winner = (string)ModHarmony.Call("GetArbitrationWinner", "npc.spawn");
-```
-
-ModHarmony never patches or injects into third-party code, so for every other
-system the Arbitration tab shows
-**"Detection available — automatic resolution unavailable."**
+---
 
 ## Configuration
 
-Client-side config via the tModLoader config UI (Mods → ModHarmony → gear icon),
-organized into **General / Scanning / Performance / Arbitration / UI** sections.
+Open it from **Mods screen → ModHarmony → gear icon** (or the Settings tab in
+ModHarmony). Organized into sections:
 
-Highlights:
-- **Safe Diagnostics Mode** — detection only, no arbitration, maximum diagnostics.
-- **Runtime monitoring** — Investigation Mode toggle.
-- **Scan \*** — individually disable detector families.
-- **Enable arbitration / Default strategy / Master random seed / Persist decisions.**
-- **Developer Mode** — shows raw technical detail (type names, hook names,
-  detector ids, conflict ids, raw evidence).
+- **General** — enable ModHarmony, scan on load, Investigation Mode, Safe
+  Diagnostics Mode.
+- **Scanning** — individually turn scanner types on/off (hook overlap, recipes,
+  dependencies, deep code changes, …).
+- **Performance** — max captured errors, slow-frame threshold.
+- **Arbitration** — enable arbitration, default strategy, master random seed,
+  persist decisions.
+- **UI** — show informational/low items, Developer Mode, compact mode.
+
+**Safe Diagnostics Mode** (recommended when troubleshooting): only detect and
+explain — never changes anything.
+
+**Developer Mode**: adds raw technical detail (type names, hook names, ids) to
+the UI for power users.
+
+---
+
+## What ModHarmony does NOT do (important)
+
+- It does **not** claim two mods are "definitely incompatible" because they
+  touch the same thing. Overlap is a *hint*, not a verdict — the UI says so.
+- It does **not** inspect or modify other mods' code. It only reads public
+  metadata, and never patches anything.
+- It does **not** need an internet connection. Everything is local.
+- It does **not** invent detections it can't back up.
+- It does **not** require other mods — it adds no content and no dependencies.
+
+---
 
 ## Performance
 
-- The full scan runs **once at load time** (during the loading screen) and
-  only again on demand or after config changes. Nothing scans every frame.
-- Reflection results are cached per load; `AssemblyManager.GetLoadableTypes`
-  is used (the safe API tModLoader recommends) instead of raw `GetTypes()`.
-- Large contestant sets (>8 mods on one system) are aggregated into one
-  conflict instead of N×N pairs, so huge modpacks stay readable.
-- Investigation Mode's exception observer is **off by default** and uses a
-  bounded ring buffer (`MaxRetainedEvents`).
-- The Settings tab shows detector health; the log shows scan duration.
+- The full scan runs **once when mods load**, and again only when you click
+  "Scan Again" or change settings. Nothing scans every frame.
+- Large modpacks stay readable: when many mods touch the same system, they are
+  grouped instead of producing thousands of pairs.
+- Investigation Mode is off by default and keeps only a bounded list of errors.
 
-## Limitations (read this)
+## Limitations (honesty section)
 
-- Detection is limited to what tModLoader's public API exposes. We cannot know
-  *which specific NPCs/items* a mod affects from hooks alone, cannot see other
-  mods' runtime state, and cannot determine whether two IL patches touch the
-  *same method* — reports say so instead of guessing.
-- Author/homepage/optional-dependency metadata is read best-effort from local
-  `.tmod` files; workshop-hosted mod files may not expose it.
-- The health score is a heuristic and says so.
-- Arbitration points only affect cooperating mods; there is no safe way to
-  arbitrate non-cooperating third-party code.
+- ModHarmony only sees what tModLoader exposes. It can't know which exact item
+  or NPC a mod changes, and it can't tell whether two "deep code changes"
+  touch the exact same place — reports say so instead of guessing.
+- Author/homepage/optional-dependency info is read from local mod files
+  (best effort); workshop-hosted files may not include it.
+- The health score is a rough guide, and says so.
+- Arbitration only affects mods that opt in; there is no safe way to force a
+  resolution on other mods.
 
 ## Troubleshooting
 
-- **ModHarmony doesn't open** — check the keybind (default `N`), and that you
-  are in a world (the UI is in-game only).
-- **Nothing is detected** — rescan from the Overview tab; verify the scan ran
-  (Settings tab → detector health). Mods must be *loaded* (enabled) to be
-  scanned.
-- **I found a false positive** — mute the conflict (right side of its card);
-  muted conflicts are hidden but stay in reports marked muted.
-- **Logs** — ModHarmony logs with the `[ModHarmony]` prefix to the normal
-  tModLoader client log.
+| Problem | Fix |
+|---|---|
+| ModHarmony doesn't open | Press `N` in a world (the UI is in-game only). Check the keybind in Mod Settings → keybinds. |
+| Nothing is detected | Click **Scan Again** on the Overview tab; mods must be enabled to be scanned. |
+| A flag is wrong | Click **Hide this** on the card (or **Show again** later). |
+| "Namespace and Folder name do not match" | The source folder isn't named exactly `ModHarmony` — use the release zip (folder pre-named). |
+| Build fails | The error is on the Develop Mods screen and in `Documents\My Games\Terraria\tModLoader\Logs\client.log`. |
+| Where are my reports? | `Documents\My Games\Terraria\tModLoader\ModHarmony\reports\` (path shown after saving). |
 
 ## Developer information
 
 Architecture and extension docs live in [`docs/`](docs/):
 
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — module layout and data flow.
-- [`docs/DETECTORS.md`](docs/DETECTORS.md) — detector list, evidence model,
-  and **how to add a new detector**.
-- [`docs/ARBITRATION.md`](docs/ARBITRATION.md) — arbitration framework, RNG
-  semantics, persistence, and the opt-in API for other mods.
+- [`docs/DETECTORS.md`](docs/DETECTORS.md) — detector list, evidence model, and how to add a new detector.
+- [`docs/ARBITRATION.md`](docs/ARBITRATION.md) — arbitration framework, RNG semantics, persistence, and the opt-in API for other mods.
 - [`docs/REPORTING.md`](docs/REPORTING.md) — reports, snapshots, "what changed".
 - [`docs/TESTING.md`](docs/TESTING.md) — test strategy, fixtures, harness.
-- [`docs/CI.md`](docs/CI.md) — GitHub Actions build workflow (enable it in
-  your fork/repo with a token that has `workflows` permission).
-
-### How to add a detector
-
-1. Implement `IConflictDetector` (see `Common/Detection/`).
-2. Register it in `DetectorManager`'s constructor.
-3. Add a config gate (`Scan*` field in `ModHarmonyConfig`) if appropriate.
-4. Add localization keys (`Detectors.{Id}.Name/Description`,
-   `Evidence.{...}`, `UI.Conflicts.Why.{Id}`).
-5. Add a test case to `test/TestHarness/Program.cs` and (optionally) a fixture
-   mod under `test/fixtures/`.
+- [`docs/BUILDING.md`](docs/BUILDING.md) — how to build the `.tmod`.
 
 ## License
 
-All original code in this repository is released under the MIT License.
+MIT.
