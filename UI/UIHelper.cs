@@ -29,7 +29,6 @@ public static class UIHelper
 		EnsureInitialized();
 		_userInterface.SetState(_state);
 		_state.OnShown();
-		Main.MouseText = "";
 	}
 
 	public static void Hide()
