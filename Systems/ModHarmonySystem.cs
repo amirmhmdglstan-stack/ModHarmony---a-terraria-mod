@@ -313,4 +313,10 @@ public sealed class ModHarmonySystem : ModSystem
 		try { return Main.versionNumber; }
 		catch { return "?"; }
 	}
+
+	public static void Reset()
+	{
+		OpenUIKeybind = null;
+		_rescanQueued = false;
+	}
 }

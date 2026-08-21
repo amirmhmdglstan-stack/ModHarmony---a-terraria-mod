@@ -33,8 +33,29 @@ public sealed class ModHarmony : Mod
 	{
 		Common.Diagnostics.RuntimeMonitor.SetActive(false);
 		Common.Diagnostics.PerformanceTracker.SetActive(false);
+		ResetStatics();
 		Log.Info("ModHarmony unloaded");
 		Instance = null;
+	}
+
+	/// <summary>
+	/// Nulls static references so nothing keeps the mod's assembly alive after
+	/// a mod reload (avoids "mod class still using memory" warnings).
+	/// </summary>
+	public static void ResetStatics()
+	{
+		Common.Utilities.Log.Reset();
+		ScanState.Context = null;
+		ScanState.Snapshot = null;
+		ScanState.ChangeSet = null;
+		Common.Arbitration.ArbitrationState.Reset();
+		Common.Diagnostics.RuntimeMonitor.Reset();
+		Common.Diagnostics.PerformanceTracker.Reset();
+		Common.Diagnostics.ErrorCorrelator.Reset();
+		UI.UIHelper.Reset();
+		UI.TabInvestigation.PendingPreview = null;
+		UI.TabReports.PendingPreview = null;
+		Systems.ModHarmonySystem.Reset();
 	}
 
 	/// <summary>

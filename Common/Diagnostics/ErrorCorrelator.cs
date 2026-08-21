@@ -70,4 +70,10 @@ public static class ErrorCorrelator
 			.ToArray();
 		return frames;
 	}
+
+	public static void Reset()
+	{
+		ModNamePrefixes.Clear();
+		TypePrefixes.Clear();
+	}
 }

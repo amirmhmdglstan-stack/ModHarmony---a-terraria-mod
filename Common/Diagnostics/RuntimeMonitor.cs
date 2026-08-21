@@ -160,4 +160,13 @@ public static class RuntimeMonitor
 		return counts.OrderByDescending(kv => kv.Value).Take(topN)
 			.Select(kv => (kv.Key, kv.Value)).ToList();
 	}
+
+	public static void Reset()
+	{
+		Active = false;
+		lock (Lock) {
+			Events.Clear();
+			DedupeIndex.Clear();
+		}
+	}
 }

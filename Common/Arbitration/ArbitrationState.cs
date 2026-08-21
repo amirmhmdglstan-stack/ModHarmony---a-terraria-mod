@@ -76,4 +76,12 @@ public static class ArbitrationState
 	}
 
 	public static bool IsSystemArbitrable(string systemId) => ArbitrationPoints.Find(systemId) != null;
+
+	public static void Reset()
+	{
+		Groups = new List<ArbitrationGroup>();
+		_byId = new Dictionary<string, ArbitrationGroup>(System.StringComparer.OrdinalIgnoreCase);
+		RegisteredValues.Clear();
+		Enabled = false;
+	}
 }

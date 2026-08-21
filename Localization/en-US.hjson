@@ -21,19 +21,19 @@ Mods: {
 		}
 
 		Severity: {
-			Info: { Name: Informational }
-			Low: { Name: Low }
-			Medium: { Name: Potential conflict }
-			Significant: { Name: Significant conflict }
-			High: { Name: High risk }
-			Unknown: { Name: Unknown }
+			Info: { Name: "Informational" }
+			Low: { Name: "Low" }
+			Medium: { Name: "Potential conflict" }
+			Significant: { Name: "Significant conflict" }
+			High: { Name: "High risk" }
+			Unknown: { Name: "Unknown" }
 		}
 
 		Confidence: {
-			Confirmed: { Name: Confirmed }
-			Strong: { Name: Strong }
-			Possible: { Name: Possible }
-			Unknown: { Name: Unknown }
+			Confirmed: { Name: "Confirmed" }
+			Strong: { Name: "Strong" }
+			Possible: { Name: "Possible" }
+			Unknown: { Name: "Unknown" }
 		}
 
 		Detector: {
@@ -122,13 +122,13 @@ Mods: {
 
 		Arbitration: {
 			Strategy: {
-				Disabled: { Name: Disabled }
-				ManualPriority: { Name: Manual priority }
-				LoadOrder: { Name: Load order }
-				Random: { Name: Random (seeded) }
-				WeightedRandom: { Name: Weighted random (seeded) }
-				FirstRegistered: { Name: First registered }
-				LastRegistered: { Name: Last registered }
+				Disabled: { Name: "Disabled" }
+				ManualPriority: { Name: "Manual priority" }
+				LoadOrder: { Name: "Load order" }
+				Random: { Name: "Random (seeded)" }
+				WeightedRandom: { Name: "Weighted random (seeded)" }
+				FirstRegistered: { Name: "First registered" }
+				LastRegistered: { Name: "Last registered" }
 			}
 			Points: {
 				SpawnRate: {
@@ -366,72 +366,72 @@ Mods: {
 		}
 
 		Systems: {
-			item_use: { Name: Item use behavior, Description: "How items are used: use time, mana, ammo, shooting, right-click." }
-			item_damage: { Name: Item damage, Description: "Weapon damage, knockback and crit modification through items." }
-			item_tooltip: { Name: Item tooltips, Description: "Tooltip text and drawing." }
-			item_inventory: { Name: Item inventory behavior, Description: "Equip effects, inventory updates, pickup and stacking." }
-			item_draw: { Name: Item drawing, Description: "In-world and in-inventory item rendering." }
-			item_loot: { Name: Item loot, Description: "Loot tables attached to items." }
-			item_modification: { Name: Item global modification, Description: "Other GlobalItem behavior not covered by a more specific system." }
-			npc_ai: { Name: NPC AI, Description: "NPC thinking, movement and behavior." }
-			npc_damage: { Name: NPC damage, Description: "Damage dealt to and by NPCs." }
-			npc_spawn: { Name: NPC spawning, Description: "Spawn rates, ranges and pools." }
-			npc_loot: { Name: NPC loot, Description: "Drops and loot tables." }
-			npc_stats: { Name: NPC stats, Description: "Life, defense, scaling, kill handling." }
-			npc_shop: { Name: NPC shops, Description: "Shop contents and prices." }
-			npc_chat: { Name: NPC chat, Description: "Dialogue and chat buttons." }
-			npc_draw: { Name: NPC drawing, Description: "Rendering of NPCs." }
-			npc_collision: { Name: NPC collision, Description: "Hitbox and collision behavior." }
-			npc_modification: { Name: NPC global modification, Description: "Other GlobalNPC behavior not covered by a more specific system." }
-			projectile_ai: { Name: Projectile AI, Description: "Projectile movement and behavior." }
-			projectile_damage: { Name: Projectile damage, Description: "Damage dealt by projectiles." }
-			projectile_collision: { Name: Projectile collision, Description: "Tiles/entity collision and cutting." }
-			projectile_draw: { Name: Projectile drawing, Description: "Rendering of projectiles." }
-			projectile_modification: { Name: Projectile global modification, Description: "Other GlobalProjectile behavior." }
-			player_update: { Name: Player update, Description: "Per-frame player logic: movement, buffs, equipment updates." }
-			player_stats: { Name: Player stats, Description: "Max stats, life regen, luck, fishing, nurse prices." }
-			player_damage: { Name: Player damage, Description: "Damage taken and dealt by the player, dodges, death." }
-			player_inventory: { Name: Player inventory, Description: "Inventory interactions, buying/selling, starting items." }
-			player_save: { Name: Player save data, Description: "Custom player save/load and client sync." }
-			player_draw: { Name: Player drawing, Description: "Player rendering and draw layers." }
-			player_lifecycle: { Name: Player lifecycle, Description: "Connect, enter world, respawn events." }
-			buff_update: { Name: Buff behavior, Description: "Buff application and per-tick effects." }
-			buff_tooltip: { Name: Buff tooltips, Description: "Buff display text." }
-			buff_draw: { Name: Buff drawing, Description: "Buff icon rendering." }
-			tile_modification: { Name: Tile behavior, Description: "Tile drops, activation, conversion." }
-			tile_draw: { Name: Tile drawing, Description: "Tile rendering and animation." }
-			tile_wire: { Name: Wire logic, Description: "Wire, switch and actuator behavior." }
-			recipe_add: { Name: Recipe additions, Description: "Recipes added during load." }
-			recipe_modify: { Name: Recipe modification, Description: "Post-processing of other mods' recipes." }
-			recipe_remove: { Name: Recipe removal, Description: "Recipes being hidden/disabled." }
-			recipe_group: { Name: Recipe groups, Description: "Groups of interchangeable items in recipes." }
-			world_gen: { Name: World generation, Description: "World structure generation passes." }
-			world_update: { Name: World update, Description: "Per-frame world logic and invasions." }
-			world_save: { Name: World save data, Description: "Custom world save/load." }
-			world_time: { Name: Time & event rates, Description: "Day/night speed and event rates." }
-			world_lifecycle: { Name: World lifecycle, Description: "World load/unload events." }
-			ui_layers: { Name: UI layers, Description: "Interface layers and game tips." }
-			ui_update: { Name: UI update, Description: "Per-frame UI update hooks." }
-			ui_input: { Name: Input handling, Description: "Post-input hooks and keybind processing." }
-			rendering_draw: { Name: Rendering, Description: "Screen position, transform and post-draw hooks." }
-			net_packets: { Name: Network packets, Description: "Custom packet send/receive." }
-			net_hijack: { Name: Network hijacking, Description: "Intercepting vanilla net messages." }
-			dependency_cycle: { Name: Dependency cycle, Description: "Mods depending on each other in a loop." }
-			dependency_version: { Name: Version requirement, Description: "A mod requires a specific version of another mod." }
-			dependency_missing: { Name: Missing dependency, Description: "A required mod is absent (cannot load)." }
-			dependency_optional: { Name: Optional dependency, Description: "A declared optional dependency is not loaded." }
-			runtime_patch: { Name: Runtime patching, Description: "IL edits and detours of game code." }
-			runtime_errors: { Name: Runtime errors, Description: "Exceptions observed while playing." }
-			asset_duplicate: { Name: Duplicate resources, Description: "Installed files claiming the same identity." }
-			content_globalItem: { Name: GlobalItem registration, Description: "Mods adding GlobalItem behavior." }
-			content_globalNPC: { Name: GlobalNPC registration, Description: "Mods adding GlobalNPC behavior." }
-			content_globalProjectile: { Name: GlobalProjectile registration, Description: "Mods adding GlobalProjectile behavior." }
-			content_globalBuff: { Name: GlobalBuff registration, Description: "Mods adding GlobalBuff behavior." }
-			content_globalTile: { Name: GlobalTile registration, Description: "Mods adding GlobalTile behavior." }
-			content_globalWall: { Name: GlobalWall registration, Description: "Mods adding GlobalWall behavior." }
-			content_modPlayer: { Name: ModPlayer registration, Description: "Mods adding player systems." }
-			content_modSystem: { Name: ModSystem registration, Description: "Mods adding global systems." }
-			content_load: { Name: Load lifecycle, Description: "OnModLoad/PostSetupContent hooks." }
+			item_use: { Name: "Item use behavior", Description: "How items are used: use time, mana, ammo, shooting, right-click." }
+			item_damage: { Name: "Item damage", Description: "Weapon damage, knockback and crit modification through items." }
+			item_tooltip: { Name: "Item tooltips", Description: "Tooltip text and drawing." }
+			item_inventory: { Name: "Item inventory behavior", Description: "Equip effects, inventory updates, pickup and stacking." }
+			item_draw: { Name: "Item drawing", Description: "In-world and in-inventory item rendering." }
+			item_loot: { Name: "Item loot", Description: "Loot tables attached to items." }
+			item_modification: { Name: "Item global modification", Description: "Other GlobalItem behavior not covered by a more specific system." }
+			npc_ai: { Name: "NPC AI", Description: "NPC thinking, movement and behavior." }
+			npc_damage: { Name: "NPC damage", Description: "Damage dealt to and by NPCs." }
+			npc_spawn: { Name: "NPC spawning", Description: "Spawn rates, ranges and pools." }
+			npc_loot: { Name: "NPC loot", Description: "Drops and loot tables." }
+			npc_stats: { Name: "NPC stats", Description: "Life, defense, scaling, kill handling." }
+			npc_shop: { Name: "NPC shops", Description: "Shop contents and prices." }
+			npc_chat: { Name: "NPC chat", Description: "Dialogue and chat buttons." }
+			npc_draw: { Name: "NPC drawing", Description: "Rendering of NPCs." }
+			npc_collision: { Name: "NPC collision", Description: "Hitbox and collision behavior." }
+			npc_modification: { Name: "NPC global modification", Description: "Other GlobalNPC behavior not covered by a more specific system." }
+			projectile_ai: { Name: "Projectile AI", Description: "Projectile movement and behavior." }
+			projectile_damage: { Name: "Projectile damage", Description: "Damage dealt by projectiles." }
+			projectile_collision: { Name: "Projectile collision", Description: "Tiles/entity collision and cutting." }
+			projectile_draw: { Name: "Projectile drawing", Description: "Rendering of projectiles." }
+			projectile_modification: { Name: "Projectile global modification", Description: "Other GlobalProjectile behavior." }
+			player_update: { Name: "Player update", Description: "Per-frame player logic: movement, buffs, equipment updates." }
+			player_stats: { Name: "Player stats", Description: "Max stats, life regen, luck, fishing, nurse prices." }
+			player_damage: { Name: "Player damage", Description: "Damage taken and dealt by the player, dodges, death." }
+			player_inventory: { Name: "Player inventory", Description: "Inventory interactions, buying/selling, starting items." }
+			player_save: { Name: "Player save data", Description: "Custom player save/load and client sync." }
+			player_draw: { Name: "Player drawing", Description: "Player rendering and draw layers." }
+			player_lifecycle: { Name: "Player lifecycle", Description: "Connect, enter world, respawn events." }
+			buff_update: { Name: "Buff behavior", Description: "Buff application and per-tick effects." }
+			buff_tooltip: { Name: "Buff tooltips", Description: "Buff display text." }
+			buff_draw: { Name: "Buff drawing", Description: "Buff icon rendering." }
+			tile_modification: { Name: "Tile behavior", Description: "Tile drops, activation, conversion." }
+			tile_draw: { Name: "Tile drawing", Description: "Tile rendering and animation." }
+			tile_wire: { Name: "Wire logic", Description: "Wire, switch and actuator behavior." }
+			recipe_add: { Name: "Recipe additions", Description: "Recipes added during load." }
+			recipe_modify: { Name: "Recipe modification", Description: "Post-processing of other mods' recipes." }
+			recipe_remove: { Name: "Recipe removal", Description: "Recipes being hidden/disabled." }
+			recipe_group: { Name: "Recipe groups", Description: "Groups of interchangeable items in recipes." }
+			world_gen: { Name: "World generation", Description: "World structure generation passes." }
+			world_update: { Name: "World update", Description: "Per-frame world logic and invasions." }
+			world_save: { Name: "World save data", Description: "Custom world save/load." }
+			world_time: { Name: "Time & event rates", Description: "Day/night speed and event rates." }
+			world_lifecycle: { Name: "World lifecycle", Description: "World load/unload events." }
+			ui_layers: { Name: "UI layers", Description: "Interface layers and game tips." }
+			ui_update: { Name: "UI update", Description: "Per-frame UI update hooks." }
+			ui_input: { Name: "Input handling", Description: "Post-input hooks and keybind processing." }
+			rendering_draw: { Name: "Rendering", Description: "Screen position, transform and post-draw hooks." }
+			net_packets: { Name: "Network packets", Description: "Custom packet send/receive." }
+			net_hijack: { Name: "Network hijacking", Description: "Intercepting vanilla net messages." }
+			dependency_cycle: { Name: "Dependency cycle", Description: "Mods depending on each other in a loop." }
+			dependency_version: { Name: "Version requirement", Description: "A mod requires a specific version of another mod." }
+			dependency_missing: { Name: "Missing dependency", Description: "A required mod is absent (cannot load)." }
+			dependency_optional: { Name: "Optional dependency", Description: "A declared optional dependency is not loaded." }
+			runtime_patch: { Name: "Runtime patching", Description: "IL edits and detours of game code." }
+			runtime_errors: { Name: "Runtime errors", Description: "Exceptions observed while playing." }
+			asset_duplicate: { Name: "Duplicate resources", Description: "Installed files claiming the same identity." }
+			content_globalItem: { Name: "GlobalItem registration", Description: "Mods adding GlobalItem behavior." }
+			content_globalNPC: { Name: "GlobalNPC registration", Description: "Mods adding GlobalNPC behavior." }
+			content_globalProjectile: { Name: "GlobalProjectile registration", Description: "Mods adding GlobalProjectile behavior." }
+			content_globalBuff: { Name: "GlobalBuff registration", Description: "Mods adding GlobalBuff behavior." }
+			content_globalTile: { Name: "GlobalTile registration", Description: "Mods adding GlobalTile behavior." }
+			content_globalWall: { Name: "GlobalWall registration", Description: "Mods adding GlobalWall behavior." }
+			content_modPlayer: { Name: "ModPlayer registration", Description: "Mods adding player systems." }
+			content_modSystem: { Name: "ModSystem registration", Description: "Mods adding global systems." }
+			content_load: { Name: "Load lifecycle", Description: "OnModLoad/PostSetupContent hooks." }
 		}
 
 		Report: {

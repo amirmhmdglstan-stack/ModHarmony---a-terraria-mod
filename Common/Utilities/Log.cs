@@ -24,6 +24,12 @@ public static class Log
 
 	public static void Init(Mod mod) => _logger = mod?.Logger;
 
+	public static void Reset()
+	{
+		_logger = null;
+		Methods.Clear();
+	}
+
 	public static void SetLevel(LogLevelSetting level) => _level = level;
 
 	public static void Trace(string message)

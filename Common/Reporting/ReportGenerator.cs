@@ -25,6 +25,7 @@ public static class ReportGenerator
 
 	public static string BuildFullReport(DetectorContext ctx, ConflictStore store, HealthCalculator.Result health, ModpackSnapshot snapshot, ArbitrationStateData arbitration)
 	{
+		ctx ??= new DetectorContext();
 		var sb = new StringBuilder(16 * 1024);
 
 		sb.AppendLine(L10n.Text("Report.Title"));
@@ -198,6 +199,7 @@ public static class ReportGenerator
 
 	public static string BuildInvestigationReport(DetectorContext ctx, ConflictStore store, HealthCalculator.Result health)
 	{
+		ctx ??= new DetectorContext();
 		var sb = new StringBuilder(6 * 1024);
 		sb.AppendLine(L10n.Text("Report.InvestigationTitle"));
 		sb.AppendLine(new string('=', 60));
@@ -246,6 +248,7 @@ public static class ReportGenerator
 
 	public static string BuildCommunitySummary(DetectorContext ctx, ConflictStore store)
 	{
+		ctx ??= new DetectorContext();
 		var sb = new StringBuilder(2 * 1024);
 		sb.AppendLine(L10n.Text("Report.CommunityTitle"));
 		sb.AppendLine(new string('-', 60));

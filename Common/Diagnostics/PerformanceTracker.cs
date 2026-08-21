@@ -88,4 +88,13 @@ public static class PerformanceTracker
 		var worst = Spikes.Count > 0 ? Spikes.Max(s => s.FrameMs) : 0;
 		return $"~{avg:0.0} ms/frame avg, {SpikeCount} spike(s) > {SpikeThresholdMs:0} ms (worst {worst:0.0} ms)";
 	}
+
+	public static void Reset()
+	{
+		Active = false;
+		Spikes.Clear();
+		_initialized = false;
+		_samples = 0;
+		_emaFrameMs = 0;
+	}
 }

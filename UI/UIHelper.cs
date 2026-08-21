@@ -55,4 +55,11 @@ public static class UIHelper
 		if (IsOpen)
 			_userInterface?.Draw(spriteBatch, gameTime);
 	}
+
+	public static void Reset()
+	{
+		_userInterface?.SetState(null);
+		_userInterface = null;
+		_state = null;
+	}
 }
