@@ -1,85 +1,70 @@
 # Building ModHarmony into a .tmod
 
-The whole process: **copy the project into the Mod Sources folder → click Build in
-tModLoader → enable the mod**. That's it. The game compiles the mod and installs
-the resulting `ModHarmony.tmod` into your Mods folder automatically.
+The whole process: **copy the `ModHarmony` folder into Mod Sources → click Build
+in tModLoader → enable the mod**. That's it. The game compiles the mod and
+installs the resulting `ModHarmony.tmod` into your Mods folder automatically.
 
-> **Important:** the mod's internal name comes from the *folder name* of the
-> source. This repository's folder is named `ModHarmony---a-terraria-mod`
-> (hyphens are not valid in mod names), so you **must rename it to `ModHarmony`**
-> when copying. The code, assembly and namespace are all already named
-> `ModHarmony`, so everything lines up once the folder is named correctly.
-
----
-
-## Option A — Build inside tModLoader (easiest, no IDE)
-
-1. **Copy the project** from this repository to your Mod Sources folder and
-   rename the folder to `ModHarmony`:
-
-   ```
-   Windows: Documents\My Games\Terraria\tModLoader\ModSources\ModHarmony\
-   macOS:   ~/Library/Application Support/Terraria/tModLoader/ModSources/ModHarmony/
-   Linux:   ~/.local/share/Terraria/tModLoader/ModSources/ModHarmony/
-   ```
-
-   The folder must contain `ModHarmony.csproj`, `ModHarmony.cs`, `build.txt`,
-   `Localization\`, etc. (You may delete `.git`, `docs` and `test` — they are
-   ignored by the build anyway.)
-
-   If `ModSources` doesn't exist yet, launch tModLoader once and open the
-   Mod Sources screen; the game creates the folder (with the required
-   `tModLoader.targets` inside).
-
-2. **Launch tModLoader** (the modded launcher, not Terraria itself). Use the
-   current **stable 1.4.4** version.
-
-3. Main menu → **Workshop** (paint-roller icon) → **Develop Mods**.
-   This opens the Mod Sources screen. ModHarmony appears in the list.
-
-4. Click **Build** on the ModHarmony row (or **Build & Reload** to build and
-   load it in one go). Watch the build output at the bottom; when it finishes,
-   `ModHarmony.tmod` has been written to your Mods folder
-   (`Documents\My Games\Terraria\tModLoader\Mods\`).
-
-5. Open the **Mods** screen (puzzle icon), find **ModHarmony**, toggle it **ON**,
-   then click **Reload Mods** (skip this if you used Build & Reload).
-
-6. Start/enter a world and press **N** — the ModHarmony UI opens.
-
-## Option B — Build from the command line
-
-1. Same as Option A step 1 (copy + rename folder into Mod Sources).
-2. Install the **.NET 8 SDK** if you don't have it.
-3. Open a terminal in the Mod Sources folder and run:
-
-   ```
-   dotnet build ModHarmony\ModHarmony.csproj -c Release
-   ```
-
-   This uses the `tModLoader.targets` the game placed in Mod Sources, compiles
-   the mod, and installs `ModHarmony.tmod` into the Mods folder.
-4. In-game: enable ModHarmony in the Mods screen → **Reload Mods**.
-
-(Equivalent: open `ModHarmony.csproj` in Visual Studio 2022 and press Build.)
+> **⚠️ The one thing that matters most:** tModLoader derives the mod's internal
+> name from the **source folder name** and requires the assembly name and the
+> top-level namespace to match it. If the folder is named anything other than
+> exactly **`ModHarmony`** (for example the repository folder name
+> `ModHarmony---a-terraria-mod`, or a name GitHub adds like
+> `ModHarmony---a-terraria-mod-0.1.2`), you get:
+>
+> **"Namespace and Folder name do not match. The top level namespace must match
+> the folder name."**
+>
+> The release zip (below) already has the folder named `ModHarmony`, so you
+> cannot get this wrong if you use it.
 
 ---
+
+## Recommended: use the release zip
+
+1. Download **`ModHarmony-v0.1.2.zip`** from the
+   [releases page](https://github.com/amirmhmdglstan-stack/ModHarmony---a-terraria-mod/releases).
+2. Extract it. The top-level folder inside is **already named `ModHarmony`** —
+   do not rename it.
+3. **Delete any older `ModHarmony*` folders** from your Mod Sources folder:
+   `Documents\My Games\Terraria\tModLoader\ModSources\`
+4. Copy the whole `ModHarmony` folder into Mod Sources.
+5. Launch tModLoader → **Workshop → Develop Mods** → click **Build** (or
+   **Build & Reload**) on the ModHarmony row.
+6. `ModHarmony.tmod` lands in your Mods folder; enable it and reload if needed.
+
+## Alternative: clone the branch yourself
+
+```
+git clone -b arena/01a023f9-modharmony-a-terraria-mod https://github.com/amirmhmdglstan-stack/ModHarmony---a-terraria-mod.git
+# then RENAME the folder to "ModHarmony" before copying into Mod Sources
+```
+
+The repository folder name contains hyphens and will fail the namespace check —
+**you must rename it to `ModHarmony`**.
+
+## Building from the command line (optional)
+
+Same folder requirement. With the .NET 8 SDK:
+
+```
+cd "Documents\My Games\Terraria\tModLoader\ModSources"
+dotnet build ModHarmony\ModHarmony.csproj -c Release
+```
+
+The csproj now contains a guard that fails with a clear message if the folder
+name is wrong.
 
 ## After making code changes
 
-Just click **Build** (or Build & Reload) again — no need to re-copy anything.
-The new `.tmod` replaces the old one in the Mods folder.
-
-## Sharing
-
-The `ModHarmony.tmod` file in your Mods folder is the finished mod. Friends can
-install it by dropping it into their own Mods folder and enabling it in-game.
+Just click **Build** (or Build & Reload) again — the new `.tmod` replaces the
+old one.
 
 ## Troubleshooting
 
 | Problem | Fix |
 |---|---|
-| Build fails with errors | Read the output shown on the Mod Sources screen; details are also in `Documents\My Games\Terraria\tModLoader\Logs\client.log`. |
-| Mod doesn't appear in Mod Sources | Make sure the folder is directly inside `ModSources` and named exactly `ModHarmony`, then click the refresh icon. |
-| "tModLoader.targets not found" | The game generates it in Mod Sources — open the Mod Sources screen once, or copy `tModLoader.targets` from any other working mod source. |
-| Works on stable but not preview | ModHarmony targets the stable 1.4.4 release (e.g. v2026.06.x); use stable. |
+| "Namespace and Folder name do not match" | The folder is not named exactly `ModHarmony` — use the release zip (folder pre-named), or rename the folder. |
+| "Mod name X does not match assembly name Y" | Same cause: folder name ≠ `ModHarmony`. |
+| Build fails with `error CS...` | Read the lines after "Compilation finished with N errors" on the Mod Sources screen, or in `Documents\My Games\Terraria\tModLoader\Logs\client.log`. |
+| Mod doesn't appear in Mod Sources | Make sure the folder is directly inside `ModSources` and named `ModHarmony`, then press the refresh icon. |
+| Works on stable but not preview | Both are supported (APIs verified on 1.4.4 stable and 2026 preview); if a specific preview build misbehaves, tell us the version. |

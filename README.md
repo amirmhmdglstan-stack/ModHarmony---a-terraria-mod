@@ -75,7 +75,17 @@ plain-language evidence explaining exactly why it was flagged and what it does
 
 ## Installation
 
-1. Copy the `ModHarmony` folder into your tModLoader **Mod Sources** folder
+> **The folder name must be exactly `ModHarmony`** — tModLoader derives the mod's
+> internal name from the folder name and requires it to match the code's
+> namespace (otherwise: *"Namespace and Folder name do not match"*). The release
+> zip below already has the folder named correctly.
+
+1. Download **`ModHarmony-v0.1.2.zip`** from the
+   [releases page](https://github.com/amirmhmdglstan-stack/ModHarmony---a-terraria-mod/releases)
+   (or clone the `arena/01a023f9-modharmony-a-terraria-mod` branch and rename the
+   folder to `ModHarmony`).
+2. Delete any older `ModHarmony*` folders from Mod Sources, then copy the
+   `ModHarmony` folder into your tModLoader **Mod Sources** folder
    (`Documents/My Games/Terraria/tModLoader/ModSources/ModHarmony`).
 2. Open `ModHarmony.csproj` in Visual Studio (or run
    `dotnet build ModHarmony.csproj` with the tModLoader .NET 8 SDK setup).

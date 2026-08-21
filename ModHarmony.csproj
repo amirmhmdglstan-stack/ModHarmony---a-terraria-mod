@@ -20,6 +20,20 @@
     <ImplicitUsings>disable</ImplicitUsings>
   </PropertyGroup>
 
+  <!--
+    tModLoader derives the mod's internal name from the SOURCE FOLDER name and
+    requires the assembly name and the top-level namespace to match it.
+    This guard makes the failure obvious when the folder is named wrong
+    (e.g. the folder name of this repository contains hyphens).
+  -->
+  <Target Name="CheckModFolderName" BeforeTargets="CoreCompile">
+    <PropertyGroup>
+      <_ModFolderName>$([System.IO.Path]::GetFileName('$(MSBuildProjectDirectory)'))</_ModFolderName>
+    </PropertyGroup>
+    <Error Condition="'$(_ModFolderName)' != 'ModHarmony'"
+           Text="The Mod Sources folder must be named exactly 'ModHarmony' (it is currently '$(_ModFolderName)'). Rename the folder and build again." />
+  </Target>
+
   <!-- Development-only content (test fixtures, docs) must not be compiled into the mod. -->
   <ItemGroup>
     <Compile Remove="test\**" />

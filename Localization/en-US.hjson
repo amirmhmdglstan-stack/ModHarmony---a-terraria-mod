@@ -4,7 +4,7 @@
 
 Mods: {
 	ModHarmony: {
-		Keybind: {
+		Keybinds: {
 			OpenUI: {
 				DisplayName: ModHarmony
 			}

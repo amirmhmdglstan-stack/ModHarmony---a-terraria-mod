@@ -1,0 +1,29 @@
+=========================================================
+ ModHarmony — INSTALL (read this first)
+=========================================================
+
+1. This folder is ALREADY named "ModHarmony". Do NOT rename it.
+   (tModLoader uses the folder name as the mod's internal name and
+   requires it to match the code's namespace. If the folder is named
+   anything else you will get:
+   "Namespace and Folder name do not match. The top level namespace
+   must match the folder name.")
+
+2. Delete any older "ModHarmony*" folders from your Mod Sources
+   folder first, then copy THIS whole "ModHarmony" folder into:
+     Documents\My Games\Terraria\tModLoader\ModSources\
+
+   (macOS:  ~/Library/Application Support/Terraria/tModLoader/ModSources/
+    Linux:  ~/.local/share/Terraria/tModLoader/ModSources/)
+
+3. Launch tModLoader (the modded launcher, current stable 1.4.4 —
+   this mod also works on the 2026 preview builds).
+
+4. Main menu -> Workshop (paint roller) -> Develop Mods.
+   You should see "ModHarmony" in the list.
+
+5. Click "Build" (or "Build & Reload") on the ModHarmony row.
+
+6. If it still fails, open:
+     Documents\My Games\Terraria\tModLoader\Logs\client.log
+   and look for the lines starting with "error" or "Exception".
