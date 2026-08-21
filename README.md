@@ -15,6 +15,8 @@ It shows you **what** is happening between your mods, **why** it was flagged, in
 plain language, and **what you can do about it**. It never pretends an
 interaction is a bug, and it never changes your mods without you asking.
 
+**I recommend you to simply just use the .tmod file in the latest [release](https://github.com/amirmhmdglstan-stack/ModHarmony---a-terraria-mod/releases) instead of building it.**
+
 ---
 
 ## Quick start (2 minutes)
