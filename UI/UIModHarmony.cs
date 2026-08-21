@@ -112,17 +112,17 @@ public sealed class UIModHarmony : UIState
 
 		float x = 0f;
 		foreach (MHTab tab in Enum.GetValues(typeof(MHTab))) {
-			var button = new MHButton(L10n.Text($"UI.Tab.{tab}"), 0.75f) {
+			var button = new MHButton(L10n.Text($"UI.Tab.{tab}"), 0.72f) {
 				Left = new StyleDimension(x, 0f),
 				Top = new StyleDimension(2, 0f),
-				Width = new StyleDimension(108, 0f),
+				Width = new StyleDimension(102, 0f),
 				Height = new StyleDimension(30, 0f)
 			};
 			var captured = tab;
 			button.OnLeftClick += (_, _) => ShowTab(captured);
 			_tabButtons[tab] = button;
 			tabBar.Append(button);
-			x += 114f;
+			x += 106f;
 		}
 
 		_mainPanel.Append(tabBar);

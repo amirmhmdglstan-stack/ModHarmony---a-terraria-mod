@@ -324,7 +324,7 @@ Mods: {
 				Winner: "Current winner: {0}"
 				NoWinner: "No winner (disabled, no candidates, or no mechanism)."
 				Priority: "priority {0}"
-				Weight: "weight {0}"
+				Weight: "weight {0} (~{1}% chance)"
 				Seed: "Seed: {0}"
 				SeedAuto: "auto (deterministic from master seed)"
 				Regenerate: Regenerate Selection

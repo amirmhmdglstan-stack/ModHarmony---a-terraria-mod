@@ -104,11 +104,8 @@ public sealed class MHButton : UIPanel
 /// <summary>A colored severity chip: colored background + explicit text label.</summary>
 public sealed class MHSeverityChip : UIElement
 {
-	private readonly string _label;
-
 	public MHSeverityChip(string label, Color color, float scale = 0.75f)
 	{
-		_label = label;
 		Width.Set(0, 1f);
 		Height.Set(24, 0);
 

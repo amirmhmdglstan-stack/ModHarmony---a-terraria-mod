@@ -164,7 +164,7 @@ public sealed class TabArbitration : TabBase
 					});
 					break;
 
-				case ArbitrationStrategy.WeightedRandom:
+				case ArbitrationStrategy.WeightedRandom: {
 					var minus = MakeMiniButton("-", 0.7f, 0f);
 					var plus = MakeMiniButton("+", 0.7f, 28f);
 					minus.OnLeftClick += (_, _) => {
@@ -177,12 +177,15 @@ public sealed class TabArbitration : TabBase
 					};
 					row.Append(minus);
 					row.Append(plus);
-					row.Append(new UIText(L10n.Text("UI.Arbitration.Weight", candidate.Weight.ToString("0")), 0.7f) {
+					float total = group.Candidates.Sum(c => Math.Max(0f, c.Weight));
+					float pct = total > 0f ? candidate.Weight / total * 100f : 0f;
+					row.Append(new UIText(L10n.Text("UI.Arbitration.Weight", candidate.Weight.ToString("0"), pct.ToString("0")), 0.7f) {
 						TextColor = MHColors.TextDim,
 						Left = new StyleDimension(56, 0f),
 						HAlign = 0.95f
 					});
 					break;
+				}
 			}
 
 			if (!string.IsNullOrEmpty(candidate.RegisteredValue)) {

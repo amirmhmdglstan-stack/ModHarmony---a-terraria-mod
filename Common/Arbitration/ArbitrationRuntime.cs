@@ -32,13 +32,11 @@ public static class ArbitrationRuntime
 					return "value must be > 0 (1 = no change)";
 
 				ArbitrationState.RegisterValue(systemId, modName, value);
-				var group = ArbitrationState.Get($"system.{systemId}");
-				if (group != null) {
-					group.EnsureCandidate(modName, LoadIndexOf(modName));
-					group.MechanismAvailable = true;
-					if (args.Length >= 5 && args[4] is string desc)
-						group.GetCandidate(modName).RegisteredValue = $"{value:0.###} ({desc})";
-				}
+				var group = ArbitrationState.EnsureGroup(systemId, ArbitrationStrategy.Disabled);
+				group.EnsureCandidate(modName, LoadIndexOf(modName));
+				group.MechanismAvailable = true;
+				if (args.Length >= 5 && args[4] is string desc)
+					group.GetCandidate(modName).RegisteredValue = $"{value:0.###} ({desc})";
 				Log.Info($"Mod {modName} registered arbitrable value for {systemId}: {value}");
 				return null;
 			}

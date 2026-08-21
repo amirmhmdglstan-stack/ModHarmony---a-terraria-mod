@@ -33,6 +33,25 @@ public static class ArbitrationState
 
 	public static ArbitrationGroup Get(string groupId) => _byId.TryGetValue(groupId, out var g) ? g : null;
 
+	/// <summary>Creates a group for an arbitrable system if it does not exist yet (used by the opt-in API before the first scan).</summary>
+	public static ArbitrationGroup EnsureGroup(string systemId, ArbitrationStrategy strategy)
+	{
+		var groupId = $"system.{systemId}";
+		var existing = Get(groupId);
+		if (existing != null)
+			return existing;
+
+		var created = new ArbitrationGroup {
+			GroupId = groupId,
+			SystemId = systemId,
+			Strategy = strategy,
+			MechanismAvailable = ArbitrationPoints.HasPoint(systemId)
+		};
+		Groups.Add(created);
+		RebuildIndex();
+		return created;
+	}
+
 	public static bool HasGroup(string systemId) => Get($"system.{systemId}") != null;
 
 	/// <summary>The winner's registered value for an arbitration point, or 1 (no-op) when none.</summary>

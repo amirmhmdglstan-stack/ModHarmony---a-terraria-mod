@@ -90,6 +90,10 @@ public sealed class ModHarmonySystem : ModSystem
 			var mods = ModLoader.Mods;
 			for (int i = 0; i < mods.Length; i++) {
 				var mod = mods[i];
+				// Skip tModLoader's built-in "ModLoader" mod (index 0): its
+				// assembly is tML itself and must never appear in the analysis.
+				if (string.Equals(mod.Name, "ModLoader", StringComparison.OrdinalIgnoreCase))
+					continue;
 				var meta = ctx.InstalledMods.FirstOrDefault(m => string.Equals(m.Name, mod.Name, StringComparison.OrdinalIgnoreCase));
 				var facts = ReflectionScanner.Scan(mod, i, meta);
 				ctx.Mods.Add(facts);
@@ -223,6 +227,28 @@ public sealed class ModHarmonySystem : ModSystem
 			foreach (var modName in conflict.Mods) {
 				var facts = ctx.Get(modName);
 				group.EnsureCandidate(modName, facts?.LoadIndex ?? int.MaxValue);
+			}
+		}
+
+		// Arbitrable systems touched by any loaded mod get a group too, so
+		// single-mod opt-in arbitration (via the Mod.Call API) works.
+		foreach (var point in ArbitrationPoints.All) {
+			var touching = ctx.ExceptSelf().Any(m => m.HookCounts.ContainsKey(point.SystemId));
+			if (!touching)
+				continue;
+			if (!byId.TryGetValue(point.GroupId, out var group)) {
+				group = new ArbitrationGroup {
+					GroupId = point.GroupId,
+					SystemId = point.SystemId,
+					Strategy = config.DefaultStrategy
+				};
+				groups.Add(group);
+				byId[group.GroupId] = group;
+			}
+			group.MechanismAvailable = true;
+			foreach (var mod in ctx.ExceptSelf().Where(m => m.HookCounts.ContainsKey(point.SystemId))) {
+				var facts = ctx.Get(mod.Name);
+				group.EnsureCandidate(mod.Name, facts?.LoadIndex ?? int.MaxValue);
 			}
 		}
 
