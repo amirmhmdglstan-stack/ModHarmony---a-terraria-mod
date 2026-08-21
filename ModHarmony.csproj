@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Standard tModLoader mod project.
+    When this folder is placed in "Mod Sources/ModHarmony", the game provides
+    "Mod Sources/tModLoader.targets" and it is imported below (one directory up).
+    A repo-local tModLoader.targets (used by CI / advanced setups) is also
+    supported if present next to this project file.
+  -->
+  <Import Project="..\tModLoader.targets" Condition="Exists('..\tModLoader.targets')" />
+  <Import Project="tModLoader.targets" Condition="!Exists('..\tModLoader.targets') and Exists('tModLoader.targets')" />
+
+  <PropertyGroup>
+    <AssemblyName>ModHarmony</AssemblyName>
+    <RootNamespace>ModHarmony</RootNamespace>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <!-- Development-only content (test fixtures, docs) must not be compiled into the mod. -->
+  <ItemGroup>
+    <Compile Remove="test\**" />
+    <EmbeddedResource Remove="test\**" />
+    <None Remove="test\**" />
+    <Compile Remove="build\**" />
+    <EmbeddedResource Remove="build\**" />
+    <None Remove="build\**" />
+  </ItemGroup>
+
+</Project>

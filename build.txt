@@ -1,0 +1,8 @@
+author = ModHarmony Team
+displayName = ModHarmony
+homepage = https://github.com/amirmhmdglstan-stack/ModHarmony---a-terraria-mod
+hideCode = false
+hideResources = false
+includeSource = false
+version = 0.1.0
+buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*, .git\*, build\*, test\*, docs\*, .github\*, *.sln, *.md, icon_workshop.png

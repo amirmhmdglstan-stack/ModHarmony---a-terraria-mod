@@ -1,0 +1,27 @@
+ModHarmony — a multi-mod compatibility analyzer and conflict manager for tModLoader.
+
+When you run a large modpack, mods constantly interact: two mods both patch NPC AI,
+both edit recipes for the same item, both register global hooks that change how damage
+is calculated. Most of the time nothing bad happens — but sometimes it does, and when a
+mysterious bug shows up it is very hard to tell which mods could be involved.
+
+ModHarmony does not "fix" mod conflicts magically. It gives you a much better answer to
+the question "which mods could be responsible for this?":
+
+  Detect   — scans all loaded mods and finds confirmed, suspected and possible
+             interactions (hook overlap, global class overlap, recipe targeting,
+             dependency issues, IL/runtime patching, and more).
+  Explain  — every finding comes with plain-language evidence explaining WHY it was
+             flagged and what it does and does not prove.
+  Investigate — an optional Investigation Mode collects safe runtime diagnostics
+             (observed exceptions correlated to mods, performance anomalies) and can
+             produce a one-click report of the current situation.
+  Suggest  — the report tells you what to try (disable a mod, check load order, ...).
+  Resolve  — for supported systems, optional, opt-in arbitration lets you choose which
+             mod "wins" when several mods compete — manually, by load order, randomly
+             with a fixed seed, or weighted. Detection-only mode is the default and
+             never changes any behavior.
+
+Everything works fully offline. ModHarmony never injects into other mods' code, never
+uses unsafe runtime patching to gather data, and is careful to distinguish between a
+detected interaction and a proven incompatibility.

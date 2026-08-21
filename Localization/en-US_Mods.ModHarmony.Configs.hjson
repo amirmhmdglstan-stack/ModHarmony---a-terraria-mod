@@ -1,0 +1,124 @@
+# ModHarmony config localization.
+# The prefix "Mods.ModHarmony.Configs" is assumed for all keys in this file.
+
+Headers: {
+	General: General
+	Scanning: Scanning
+	Performance: Performance
+	Arbitration: Arbitration
+	UI: UI
+}
+
+ModHarmonyConfig: {
+	DisplayName: ModHarmony
+
+	EnableModHarmony: {
+		Label: Enable ModHarmony
+		Tooltip: "Master switch. When disabled, no scanning or runtime monitoring runs."
+	}
+
+	EnableDiagnostics: {
+		Label: Enable diagnostics
+		Tooltip: "Controls whether ModHarmony collects diagnostic information at all."
+	}
+
+	RunStartupScan: {
+		Label: Run scan on load
+		Tooltip: "Run the full compatibility scan every time mods are loaded. Disable to only scan manually from the UI."
+	}
+
+	RuntimeMonitoring: {
+		Label: Runtime monitoring (Investigation Mode)
+		Tooltip: "When enabled, ModHarmony observes exceptions involving loaded mods and samples frame times while you play. Adds a small performance cost — keep it off unless you are troubleshooting."
+	}
+
+	LogLevel: {
+		Label: Log level
+		Tooltip: "How verbose ModHarmony's own log output should be. Important conflict events are always logged."
+	}
+
+	SafeDiagnosticsMode: {
+		Label: Safe Diagnostics Mode
+		Tooltip: "Detection only: disables arbitration application, keeps maximum diagnostic information. The recommended mode when troubleshooting."
+	}
+
+	ScanHooks: {
+		Label: Scan hook overlap
+		Tooltip: "Detect multiple mods overriding hooks in the same game system."
+	}
+
+	ScanGlobalClasses: {
+		Label: Scan global classes
+		Tooltip: "Detect overlapping Global*/ModPlayer/ModSystem registrations."
+	}
+
+	ScanRecipes: {
+		Label: Scan recipes
+		Tooltip: "Detect multiple mods producing the same recipe result and shared recipe groups."
+	}
+
+	ScanAssets: {
+		Label: Scan assets
+		Tooltip: "Detect duplicate/conflicting resource identifiers at the install level."
+	}
+
+	ScanDependencies: {
+		Label: Scan dependencies
+		Tooltip: "Detect dependency cycles, version requirements and missing optional dependencies."
+	}
+
+	ScanILHooks: {
+		Label: Scan IL/runtime patches
+		Tooltip: "Detect mods that patch game code at runtime using static, verifiable signals."
+	}
+
+	MaxRetainedEvents: {
+		Label: Max retained events
+		Tooltip: "Maximum number of runtime events kept by Investigation Mode's ring buffer."
+	}
+
+	FrameSpikeThresholdMs: {
+		Label: Frame spike threshold (ms)
+		Tooltip: "Frames slower than this (milliseconds) are recorded as spikes by Investigation Mode."
+	}
+
+	EnableArbitration: {
+		Label: Enable arbitration
+		Tooltip: "Opt-in: when enabled, arbitration groups can apply their decisions at ModHarmony's arbitration points. Detection always runs; nothing is applied while this is off."
+	}
+
+	DefaultStrategy: {
+		Label: Default strategy
+		Tooltip: "Strategy used for newly detected arbitration groups."
+	}
+
+	RandomSeed: {
+		Label: Master random seed
+		Tooltip: "Seed used to derive deterministic 'auto' seeds for random arbitration. Change it to get a different stable roll."
+	}
+
+	PersistDecisions: {
+		Label: Persist decisions
+		Tooltip: "Save arbitration strategies, seeds, weights and winners to disk so they survive restarts."
+	}
+
+	ShowInformational: {
+		Label: Show informational conflicts
+		Tooltip: "Include informational findings in the Conflicts tab and reports."
+	}
+
+	ShowLowRisk: {
+		Label: Show low-risk conflicts
+		Tooltip: "Include low-risk findings in the Conflicts tab."
+	}
+
+	DeveloperMode: {
+		Label: Developer Mode
+		Tooltip: "Show fully qualified type names, hook names, detector and conflict ids, and raw evidence."
+	}
+
+	CompactMode: {
+		Label: Compact mode
+		Tooltip: "Reduces spacing in lists to fit more entries on screen."
+	}
+}
