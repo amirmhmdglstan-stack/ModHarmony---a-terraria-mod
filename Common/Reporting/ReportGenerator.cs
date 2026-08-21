@@ -316,7 +316,9 @@ public static class ReportGenerator
 
 	private static string DisplayName(string modName)
 	{
-		var facts = ScanState?.Context?.Get(modName);
+		// ScanState is a static class — no null-conditional on the type itself;
+		// Context is nullable, hence the ?. after it.
+		var facts = ScanState.Context?.Get(modName);
 		return facts != null ? facts.DisplayNameSafe : modName;
 	}
 
