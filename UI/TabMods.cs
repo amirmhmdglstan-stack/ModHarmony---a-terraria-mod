@@ -236,7 +236,7 @@ public sealed class TabMods : TabBase
 				var other = string.Join(" ↔ ", c.Mods.Where(m => m != modName).Select(DisplayNameOf));
 				items.Add(new MHBodyText(
 					$"[{L10n.Text("Severity." + c.Severity.LocalizationSuffix() + ".Name")}] {other} — {SafeName(SystemRegistry.Get(c.SystemId).NameKey)} ({L10n.Text("Confidence." + c.Confidence.LocalizationSuffix() + ".Name")})",
-					0.75f, MHColors.Severity(c.Severity)));
+					0.75f, MHColors.SeverityColor(c.Severity)));
 			}
 		}
 

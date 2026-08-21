@@ -14,6 +14,10 @@
     <AssemblyName>ModHarmony</AssemblyName>
     <RootNamespace>ModHarmony</RootNamespace>
     <LangVersion>latest</LangVersion>
+    <!-- Match the tModLoader in-game compiler: no implicit usings, so every
+         file must list its own using directives (this catches the same
+         errors locally that the game's compiler would report). -->
+    <ImplicitUsings>disable</ImplicitUsings>
   </PropertyGroup>
 
   <!-- Development-only content (test fixtures, docs) must not be compiled into the mod. -->

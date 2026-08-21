@@ -158,7 +158,7 @@ public sealed class TabConflicts : TabBase
 		var card = new UIPanel {
 			Width = StyleDimension.Fill,
 			BackgroundColor = new Color(20, 24, 33, 230),
-			BorderColor = MHColors.Severity(c.Severity) * 0.6f
+			BorderColor = MHColors.SeverityColor(c.Severity) * 0.6f
 		};
 		card.SetPadding(6);
 
@@ -172,7 +172,7 @@ public sealed class TabConflicts : TabBase
 
 		var severityLabel = L10n.Text("Severity." + c.Severity.LocalizationSuffix() + ".Name").ToUpperInvariant();
 		var sevText = new UIText(severityLabel, 0.7f) {
-			TextColor = MHColors.Severity(c.Severity),
+			TextColor = MHColors.SeverityColor(c.Severity),
 			TextOriginX = 0f,
 			Width = new StyleDimension(120, 0f)
 		};
@@ -192,7 +192,7 @@ public sealed class TabConflicts : TabBase
 			Width = new StyleDimension(150, 0f)
 		});
 		header.Append(new UIText(L10n.Text("Confidence." + c.Confidence.LocalizationSuffix() + ".Name"), 0.7f) {
-			TextColor = MHColors.Confidence(c.Confidence),
+			TextColor = MHColors.ConfidenceColor(c.Confidence),
 			HAlign = 1f
 		});
 

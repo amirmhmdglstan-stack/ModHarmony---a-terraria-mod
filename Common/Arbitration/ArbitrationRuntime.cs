@@ -13,9 +13,11 @@ namespace ModHarmony.Common.Arbitration;
 public static class ArbitrationRuntime
 {
 	/// <summary>
-	/// Returns null when the call was handled; otherwise an error string.
+	/// Returns null when the call was handled successfully; otherwise an error
+	/// string (or a result value for query operations). Returned through the
+	/// object-typed Mod.Call API.
 	/// </summary>
-	public static string HandleCall(Mod caller, params object[] args)
+	public static object HandleCall(Mod caller, params object[] args)
 	{
 		if (args == null || args.Length == 0)
 			return "empty call";

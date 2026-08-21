@@ -316,7 +316,7 @@ public static class ReportGenerator
 
 	private static string DisplayName(string modName)
 	{
-		var facts = ModHarmony.ScanState?.Context?.Get(modName);
+		var facts = ScanState?.Context?.Get(modName);
 		return facts != null ? facts.DisplayNameSafe : modName;
 	}
 

@@ -131,7 +131,7 @@ public sealed class TabSystems : TabBase
 			foreach (var c in conflicts.Take(15)) {
 				items.Add(new MHBodyText(
 					$"[{L10n.Text("Severity." + c.Severity.LocalizationSuffix() + ".Name")}] {string.Join(" ↔ ", c.Mods.Select(DisplayNameOf))}",
-					0.75f, MHColors.Severity(c.Severity)));
+					0.75f, MHColors.SeverityColor(c.Severity)));
 			}
 		}
 

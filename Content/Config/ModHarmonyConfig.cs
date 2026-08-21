@@ -83,14 +83,14 @@ public class ModHarmonyConfig : ModConfig
 
 	[Header("$Mods.ModHarmony.Configs.Headers.Arbitration")]
 	[DefaultValue(false)]
-	[Tooltip("$Mods.ModHarmony.Configs.ModHarmonyConfig.EnableArbitration.Tooltip")]
+	[TooltipKey("Mods.ModHarmony.Configs.ModHarmonyConfig.EnableArbitration.Tooltip")]
 	public bool EnableArbitration;
 
 	[DefaultValue(ArbitrationStrategy.Disabled)]
 	public ArbitrationStrategy DefaultStrategy;
 
 	[DefaultValue(0)]
-	[Tooltip("$Mods.ModHarmony.Configs.ModHarmonyConfig.RandomSeed.Tooltip")]
+	[TooltipKey("Mods.ModHarmony.Configs.ModHarmonyConfig.RandomSeed.Tooltip")]
 	public int RandomSeed;
 
 	[DefaultValue(true)]
@@ -100,7 +100,7 @@ public class ModHarmonyConfig : ModConfig
 
 	[Header("$Mods.ModHarmony.Configs.Headers.UI")]
 	[DefaultValue(false)]
-	[Tooltip("$Mods.ModHarmony.Configs.ModHarmonyConfig.ShowInformational.Tooltip")]
+	[TooltipKey("Mods.ModHarmony.Configs.ModHarmonyConfig.ShowInformational.Tooltip")]
 	public bool ShowInformational;
 
 	[DefaultValue(true)]

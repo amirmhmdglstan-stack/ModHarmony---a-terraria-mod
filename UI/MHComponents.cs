@@ -45,8 +45,13 @@ public static class MHColors
 	public static readonly Color TextDim = new(160, 170, 185, 255);
 	public static readonly Color Danger = new(240, 90, 90, 255);
 	public static readonly Color Success = new(110, 200, 130, 255);
+	public static readonly Color Medium = new(240, 210, 90, 255);
 
-	public static Color Severity(Severity s) => s switch {
+	// Note: named *Color to avoid the type-name clash between the methods and
+	// the Severity/Confidence enums (a method named "Severity" would shadow the
+	// enum type inside this class and break switch expressions).
+
+	public static Color SeverityColor(Severity s) => s switch {
 		Severity.Info => new Color(110, 200, 130, 255),
 		Severity.Low => new Color(110, 170, 255, 255),
 		Severity.Medium => new Color(240, 210, 90, 255),
@@ -55,7 +60,7 @@ public static class MHColors
 		_ => new Color(160, 160, 170, 255)
 	};
 
-	public static Color Confidence(Confidence c) => c switch {
+	public static Color ConfidenceColor(Confidence c) => c switch {
 		Confidence.Confirmed => new Color(130, 220, 140, 255),
 		Confidence.Strong => new Color(140, 190, 255, 255),
 		Confidence.Possible => new Color(235, 210, 110, 255),
