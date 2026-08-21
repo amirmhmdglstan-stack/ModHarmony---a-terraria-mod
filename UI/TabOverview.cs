@@ -103,7 +103,7 @@ public sealed class TabOverview : TabBase
 		items.Add(new UIText(L10n.Text("UI.Overview.ActionsTitle"), 0.95f, true) { TextColor = MHColors.Accent, TextOriginX = 0f });
 		items.Add(MakeButton(L10n.Text("UI.Overview.Analyze"), () => {
 			var report = ReportGenerator.BuildInvestigationReport(ScanState.Context, ScanState.Store, ScanState.Health);
-			TabReports.PendingPreview = report;
+			TabInvestigation.PendingPreview = report;
 			Navigate(MHTab.Investigation);
 		}));
 		items.Add(MakeButton(L10n.Text("UI.Overview.Export"), () => {
@@ -111,10 +111,10 @@ public sealed class TabOverview : TabBase
 			var path = ReportGenerator.ExportFullReport(report);
 			SetStatus(L10n.Text("UI.Reports.ExportedTo", path));
 		}));
-		items.Add(MakeButton(L10n.Text("UI.Overview.CopySummary"), () => {
+		items.Add(MakeButton(L10n.Text("UI.Overview.SaveSummary"), () => {
 			var summary = ReportGenerator.BuildCommunitySummary(ScanState.Context, ScanState.Store);
-			CopyToClipboard(summary);
-			SetStatus(L10n.Text("UI.Reports.Copied"));
+			var path = ReportGenerator.ExportCommunitySummary(summary);
+			SetStatus(L10n.Text("UI.Reports.SavedTo", path));
 		}));
 		items.Add(MakeButton(L10n.Text("UI.Overview.OpenArbitration"), () => Navigate(MHTab.Arbitration)));
 		items.Add(MakeButton(L10n.Text("UI.Overview.Rescan"), () => {
@@ -155,8 +155,4 @@ public sealed class TabOverview : TabBase
 		return button;
 	}
 
-	private static void CopyToClipboard(string text)
-	{
-		ReLogic.OS.Platform.Get<ReLogic.OS.IClipboard>().Value = text;
-	}
 }

@@ -56,7 +56,7 @@ public sealed class TabReports : TabBase
 		};
 		items.Add(export);
 
-		var copy = new MHButton(L10n.Text("UI.Reports.CopySummary"), 0.8f) {
+		var copy = new MHButton(L10n.Text("UI.Reports.SaveSummary"), 0.8f) {
 			Width = new StyleDimension(280, 0f),
 			Height = new StyleDimension(30, 0f),
 			Left = new StyleDimension(290, 0f)
@@ -67,8 +67,8 @@ public sealed class TabReports : TabBase
 				return;
 			}
 			var summary = ReportGenerator.BuildCommunitySummary(ScanState.Context, ScanState.Store);
-			ReLogic.OS.Platform.Get<ReLogic.OS.IClipboard>().Value = summary;
-			SetStatus(L10n.Text("UI.Reports.Copied"));
+			var path = ReportGenerator.ExportCommunitySummary(summary);
+			SetStatus(L10n.Text("UI.Reports.SavedTo", path));
 		};
 		items.Add(copy);
 

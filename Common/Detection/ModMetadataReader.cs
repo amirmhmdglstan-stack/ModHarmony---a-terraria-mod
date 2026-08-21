@@ -1,17 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using ModHarmony.Common.Utilities;
-using Terraria.ModLoader.Core;
 
 namespace ModHarmony.Common.Detection;
 
 /// <summary>
 /// Best-effort reader for installed .tmod files' embedded metadata ("Info"
-/// stream). tModLoader keeps this format internal, so we mirror the wire format
-/// (see BuildProperties.ReadFromStream). Any parse failure is caught and the mod
-/// is simply left with less metadata — never a crash.
+/// entry). tModLoader keeps the BuildProperties wire format internal, so we
+/// mirror it here (see BuildProperties.ReadFromStream). The .tmod container is
+/// a zip archive, so we read it with the standard library — no tModLoader
+/// internals needed. Any parse failure is caught and the mod is simply left
+/// with less metadata — never a crash.
 /// </summary>
 public static class ModMetadataReader
 {
@@ -19,20 +21,22 @@ public static class ModMetadataReader
 	public static InstalledModInfo Read(string filePath)
 	{
 		try {
-			var file = new TmodFile(filePath);
-			using (file.Open()) {
-				if (!file.HasFile("Info"))
-					return new InstalledModInfo { FileName = Path.GetFileName(filePath), Name = file.Name, ParseFailed = true };
+			var info = new InstalledModInfo {
+				FileName = Path.GetFileName(filePath),
+				Name = Path.GetFileNameWithoutExtension(filePath)
+			};
 
-				using var stream = file.GetStream("Info");
-				if (stream == null)
-					return new InstalledModInfo { FileName = Path.GetFileName(filePath), Name = file.Name, ParseFailed = true };
-
-				using var reader = new BinaryReader(stream);
-				var info = Parse(filePath, reader);
-				info.Name = file.Name;
+			using var archive = ZipFile.OpenRead(filePath);
+			var infoEntry = archive.GetEntry("Info");
+			if (infoEntry == null) {
+				info.ParseFailed = true;
 				return info;
 			}
+
+			using var stream = infoEntry.Open();
+			using var reader = new BinaryReader(stream);
+			Parse(info, reader);
+			return info;
 		}
 		catch (Exception e) {
 			Log.Debug($"Could not read metadata from {Path.GetFileName(filePath)}: {e.Message}");
@@ -40,12 +44,8 @@ public static class ModMetadataReader
 		}
 	}
 
-	private static InstalledModInfo Parse(string filePath, BinaryReader reader)
+	private static void Parse(InstalledModInfo info, BinaryReader reader)
 	{
-		var info = new InstalledModInfo {
-			FileName = Path.GetFileName(filePath)
-		};
-
 		for (string tag = reader.ReadString(); tag.Length > 0; tag = reader.ReadString()) {
 			switch (tag) {
 				case "dllReferences":
@@ -87,9 +87,9 @@ public static class ModMetadataReader
 				case "!hideCode":
 				case "!hideResources":
 				case "includeSource":
+					break;
 				case "eacPath":
-					if (tag == "eacPath")
-						reader.ReadString();
+					reader.ReadString();
 					break;
 				case "side":
 					reader.ReadByte();
@@ -101,15 +101,12 @@ public static class ModMetadataReader
 					reader.ReadString();
 					break;
 				default:
-					// Unknown tag: skip a value if one exists. We cannot know its type,
-					// so stop parsing rather than desync the stream.
-					Log.Debug($"Unknown Info tag '{tag}' in {Path.GetFileName(filePath)}; metadata parse stopped.");
-					return info;
+					// Unknown tag: we cannot know the type of its value, so stop
+					// parsing rather than desync the stream.
+					Log.Debug($"Unknown Info tag '{tag}' in {info.FileName}; metadata parse stopped.");
+					return;
 			}
 		}
-
-		info.Name = Path.GetFileNameWithoutExtension(filePath);
-		return info;
 	}
 
 	private static IEnumerable<string> ReadList(BinaryReader reader)

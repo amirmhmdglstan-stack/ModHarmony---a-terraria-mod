@@ -187,7 +187,7 @@ Mods: {
 				ActionsTitle: Actions
 				Analyze: Analyze Current Situation
 				Export: Export Full Report
-				CopySummary: Copy Community Summary
+				SaveSummary: Save Community Summary
 				OpenArbitration: Manage Arbitration
 				Rescan: Rescan Now
 				RescanQueued: "Rescan queued — will run on the next frame."
@@ -337,11 +337,11 @@ Mods: {
 				Title: Reports & export
 				Explanation: "The full report is written to {Main.SavePath}/ModHarmony/reports/ as a text file you can open in any editor. The community summary is a compact block designed to paste into a Discord or GitHub issue."
 				ExportFull: Export Full Report
-				CopySummary: Copy Community Summary
+				SaveSummary: Save Community Summary
 				PreviewTitle: Report preview
 				NoPreview: "No report generated yet — click Export Full Report to preview and save one."
 				ExportedTo: "Report saved to: {0}"
-				Copied: "Community summary copied to clipboard."
+				SavedTo: "Community summary saved to: {0}"
 			}
 
 			Settings: {

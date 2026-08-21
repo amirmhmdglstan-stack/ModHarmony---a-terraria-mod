@@ -1,6 +1,7 @@
 using System;
 using ModHarmony.Common.Core;
 using ModHarmony.Common.Utilities;
+using Terraria.ModLoader;
 
 namespace ModHarmony.Common.Arbitration;
 

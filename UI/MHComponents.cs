@@ -84,21 +84,13 @@ public sealed class MHButton : UIPanel
 			TextColor = MHColors.Text
 		};
 		Append(_label);
+
+		// OnMouseOver/OnMouseOut are events, not virtual methods.
+		OnMouseOver += (_, _) => BackgroundColor = _hoverColor;
+		OnMouseOut += (_, _) => BackgroundColor = _baseColor;
 	}
 
 	public void SetText(string text) => _label.SetText(text);
-
-	public override void OnMouseOver(UIMouseEvent evt)
-	{
-		base.OnMouseOver(evt);
-		BackgroundColor = _hoverColor;
-	}
-
-	public override void OnMouseOut(UIMouseEvent evt)
-	{
-		base.OnMouseOut(evt);
-		BackgroundColor = _baseColor;
-	}
 }
 
 /// <summary>A colored severity chip: colored background + explicit text label.</summary>
@@ -146,6 +138,9 @@ public sealed class MHTextField : UIElement
 		_hint = hint;
 		Width.Set(0, 1f);
 		Height.Set(34, 0);
+
+		// OnLeftClick is an event, not a virtual method.
+		OnLeftClick += (_, _) => _focused = true;
 	}
 
 	public void SetText(string text)
@@ -157,12 +152,6 @@ public sealed class MHTextField : UIElement
 	}
 
 	public void Unfocus() => _focused = false;
-
-	public override void OnLeftClick(UIMouseEvent evt)
-	{
-		base.OnLeftClick(evt);
-		_focused = true;
-	}
 
 	public override void Update(GameTime gameTime)
 	{

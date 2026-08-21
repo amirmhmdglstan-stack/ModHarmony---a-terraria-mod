@@ -289,6 +289,17 @@ public static class ReportGenerator
 		return path;
 	}
 
+	/// <summary>Saves the community summary to the reports folder and returns the file path.</summary>
+	public static string ExportCommunitySummary(string content)
+	{
+		var dir = Path.Combine(MainSavePathProvider.Get(), "ModHarmony", "reports");
+		Directory.CreateDirectory(dir);
+		var path = Path.Combine(dir, $"ModHarmonySummary_{DateTime.Now:yyyyMMdd_HHmmss}.txt");
+		File.WriteAllText(path, content);
+		Log.Info($"Community summary saved to {path}");
+		return path;
+	}
+
 	// ---------------------------------------------------------------- helpers
 
 	private static string SafeMainVersion()
