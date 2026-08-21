@@ -1,6 +1,5 @@
 # ModHarmony English localization.
-# Keys follow the tModLoader convention: Mods.ModHarmony.*
-# All user-facing text in the mod lives here.
+# All user-facing text lives here. Keys are stable; values are plain language.
 
 Mods: {
 	ModHarmony: {
@@ -11,20 +10,23 @@ Mods: {
 		}
 
 		Health: {
-			Disclaimer: "Modpack Health is a HEURISTIC, not an objective measurement. It is computed from the issues ModHarmony detected, and nothing else. Click 'Show calculation' to see exactly how the score was derived."
-			Explanation: "A high score means 'few detected interactions and no detector failures', not 'this modpack is guaranteed stable'. A low score means 'several risky interactions were detected', not 'this modpack is broken'."
-			NoDeductions: "No deductions: nothing flagged on this scan."
-			DeductionConflicts: "{0} {1} conflicts with {2} confidence"
-			DeductionOverlap: "{0} mods overlap on system '{1}'"
+			Disclaimer: "This score is a rough guide, not a measurement. It is based only on what ModHarmony detected, and you can see exactly how it was calculated below."
+			Explanation: "A high score means: few detected interactions. A low score means: several risky interactions were found. Either way, check the red and orange items first."
+			NoDeductions: "Nothing was flagged on this scan."
+			DeductionConflicts: "{0} {1} conflicts ({2} confidence)"
+			DeductionOverlap: "{0} mods touch the same system: {1}"
 			DeductionLoadOrder: "Load order warning: {0}"
-			DeductionDetectorFailure: "{0} detector(s) failed, scan is incomplete"
+			DeductionDetectorFailure: "{0} scanner(s) failed, so this scan is incomplete"
+			Good: "Looking good!"
+			Ok: "A few things to check."
+			Bad: "Several things to investigate."
 		}
 
 		Severity: {
 			Info: { Name: "Informational" }
 			Low: { Name: "Low" }
-			Medium: { Name: "Potential conflict" }
-			Significant: { Name: "Significant conflict" }
+			Medium: { Name: "Watch out" }
+			Significant: { Name: "Concerning" }
 			High: { Name: "High risk" }
 			Unknown: { Name: "Unknown" }
 		}
@@ -40,83 +42,83 @@ Mods: {
 			Status: {
 				Pending: Pending
 				Running: Running
-				Completed: Completed
-				Failed: Failed (skipped, scan continued)
-				Disabled: Disabled by configuration
+				Completed: Done
+				Failed: Failed (other scans continued)
+				Disabled: Off
 			}
 		}
 
 		Detectors: {
 			HookOverlap: {
-				Name: Hook overlap
-				Description: "Flags mods whose Global classes override hooks that run in the same game system (e.g. two mods both override GlobalNPC.AI)."
+				Name: Mods touching the same thing
+				Description: "Finds mods that both change the same part of the game (like NPC behavior)."
 			}
 			GlobalClassOverlap: {
-				Name: Global class overlap
-				Description: "Informational: mods that register the same kind of Global class (GlobalNPC, GlobalItem, ...), even when they share no specific hook."
+				Name: Mods adding similar add-ons
+				Description: "Notes when mods both add the same kind of extension to the game."
 			}
 			ModPlayerOverlap: {
-				Name: ModPlayer overlap
-				Description: "Flags mods that attach overlapping behavior to the player through the same ModPlayer hooks."
+				Name: Mods changing the player
+				Description: "Finds mods that both change the player in the same way."
 			}
 			ModSystemOverlap: {
-				Name: ModSystem overlap
-				Description: "Flags mods that register systems with overlapping responsibilities (update loops, world generation, UI layers, recipe phases)."
+				Name: Mods running the same systems
+				Description: "Finds mods that both run background systems (world gen, UI, recipes)."
 			}
 			RecipeOverlap: {
-				Name: Recipe interactions
-				Description: "Flags recipes from different mods producing the same item, and recipe groups shared by multiple mods."
+				Name: Recipe overlaps
+				Description: "Finds mods that craft the same item, and recipe groups shared by mods."
 			}
 			Dependency: {
-				Name: Dependency analysis
-				Description: "Flags dependency cycles and missing optional dependencies. Missing hard dependencies and unmet version requirements are not reported because tModLoader refuses to load such mods."
+				Name: Dependency check
+				Description: "Checks mod dependencies: cycles and missing optional mods."
 			}
 			ILHooks: {
-				Name: IL / runtime patching
-				Description: "Finds mods that patch game code at runtime (IL edits / detours) using static, verifiable signals."
+				Name: Deep code changes
+				Description: "Finds mods that change the game's code directly at runtime."
 			}
 			Asset: {
-				Name: Asset / resource analysis
-				Description: "Finds duplicate mod files and reports what asset conflicts tModLoader itself prevents."
+				Name: File conflicts
+				Description: "Finds duplicate mod files that could confuse updates."
 			}
 		}
 
 		Evidence: {
 			HookOverlap: {
-				ModHooks: "{0} overrides hooks on {1}: {2}"
-				Aggregate: "{0} mods override hooks on {1} ({2})"
-				Why: "Both mods override hooks that run during the same phase for the same entities ({0}). This does NOT prove incompatibility, but it increases the chance that their changes interact."
+				ModHooks: "{0} changes {1} (hooks: {2})"
+				Aggregate: "{0} mods all change {1} ({2})"
+				Why: "Both mods change the same part of the game. That alone does not break anything, but it raises the chance their changes clash."
 			}
 			GlobalClassOverlap: {
-				Pair: "Both mods register {0} classes ({1} and {2}). No specific shared hooks were found."
-				Aggregate: "{1} mods register {0} classes. This is informational only."
+				Pair: "Both mods add {0} extensions ({1} and {2}). This is normal and usually harmless."
+				Aggregate: "{1} mods add {0} extensions. Nothing to worry about on its own."
 			}
 			ModPlayerOverlap: {
-				ModHooks: "{0} overrides player hooks on {1}: {2}"
-				Aggregate: "{0} mods override player hooks on {1} ({2})"
-				Why: "Both mods attach behavior to the player through the same phase ({0}). Their effects apply to the same player at the same time; this does not prove incompatibility."
+				ModHooks: "{0} changes the player via {1} (hooks: {2})"
+				Aggregate: "{0} mods change the player via {1} ({2})"
+				Why: "Both mods change the player at the same moment. Their effects can add up or clash."
 			}
 			ModSystemOverlap: {
-				ModHooks: "{0} overrides system hooks on {1}: {2}"
-				Aggregate: "{0} mods override system hooks on {1} ({2})"
-				Why: "Both mods register systems that run in the same phase ({0}). Overlapping update loops and UI layers are common and usually harmless; world generation and recipe modification overlap matters more."
+				ModHooks: "{0} runs system hooks on {1} (hooks: {2})"
+				Aggregate: "{0} mods run system hooks on {1} ({2})"
+				Why: "Both mods run background systems in the same phase. Usually fine; world gen and recipe edits matter most."
 			}
 			RecipeOverlap: {
-				ModRecipes: "{0} registers {2} recipe(s) producing {1}"
-				Why: "Multiple mods produce the same item ({0}). This is often intentional (alternate crafting paths). It can matter when the recipes compete for the same ingredients or have very different costs, or when one mod expects to be the only source of the item."
-				Aggregate: "{1} mods register recipes producing {0}"
-				GroupShared: "A recipe group is shared by {0} mods (tModLoader merges same-name groups). Informational."
+				ModRecipes: "{0} adds {2} recipe(s) for {1}"
+				Why: "Several mods craft the same item. That is often intentional (alternate ways to craft). It only matters when they fight over the same materials."
+				Aggregate: "{1} mods add recipes for {0}"
+				GroupShared: "A recipe group is shared by {0} mods. Informational."
 			}
 			Dependency: {
-				Cycle: "Dependency cycle detected: {0}. The load order between these mods is decided by tModLoader heuristics and can change when a mod is updated."
-				MissingOptional: "{0} declares an optional dependency on {1}, which is not loaded. Features that depend on {1} are inactive."
+				Cycle: "These mods depend on each other in a circle: {0}. Their load order is decided automatically and can change when a mod updates."
+				MissingOptional: "{0} can optionally use {1}, which is not installed. Features needing {1} are simply off."
 			}
 			Asset: {
-				DuplicateFiles: "Multiple installed files claim the internal name '{0}': {1}. This can confuse updates and mod management."
+				DuplicateFiles: "Several installed files claim the name '{0}': {1}. Old copies can confuse updates — consider removing the extra ones."
 			}
 			ILHooks: {
-				SingleMod: "{0} patches game code at runtime (signals: {1}). Patching is a common source of hard-to-diagnose interactions."
-				Pair: "{0} and {1} both patch game code at runtime. ModHarmony cannot determine whether they patch the same methods; treat this as a possible interaction only."
+				SingleMod: "{0} changes game code directly at runtime (signals: {1}). This kind of mod can clash with others in hard-to-see ways."
+				Pair: "{0} and {1} both change game code at runtime. They may or may not touch the same place — treat this as a possible clash only."
 			}
 		}
 
@@ -133,11 +135,11 @@ Mods: {
 			Points: {
 				SpawnRate: {
 					Name: NPC spawn rate
-					Description: "The winning mod's registered factor is applied to NPC spawn rates. Factor < 1 means fewer spawns, > 1 means more; 1 means no change. Only affects mods that register a value via the ModHarmony API."
+					Description: "The winning mod's setting is applied to how often enemies spawn. Only affects mods that opt in."
 				}
 				NpcDamage: {
-					Name: NPC damage taken
-					Description: "The winning mod's registered multiplier is applied to damage dealt to NPCs. < 1 means NPCs take less damage, > 1 means more; 1 means no change. Only affects mods that register a value via the ModHarmony API."
+					Name: Damage to enemies
+					Description: "The winning mod's setting is applied to how much damage enemies take. Only affects mods that opt in."
 				}
 			}
 		}
@@ -148,14 +150,14 @@ Mods: {
 			Footer: "Session {0} — scan run {1}"
 			TabBuildFailed: "This tab could not be built: {0}"
 			TabEmpty: "Nothing to show here."
-			NoScan: "No scan has run yet. Rescan, or reload mods to scan on startup."
+			NoScan: "No scan yet. Click Rescan below, or reload your mods."
 
 			Tab: {
 				Overview: Overview
 				Mods: Mods
 				Conflicts: Conflicts
 				Systems: Systems
-				Investigation: Investigation
+				Investigation: Investigate
 				Arbitration: Arbitration
 				Reports: Reports
 				Settings: Settings
@@ -164,46 +166,53 @@ Mods: {
 			Overview: {
 				HealthTitle: Modpack Health
 				NoScanYet: "— (no scan)"
-				ShowBreakdown: Show calculation
+				ShowBreakdown: Show how this is calculated
 				HideBreakdown: Hide calculation
-				StatsTitle: Quick stats
+				StatsTitle: At a glance
 				StatMods: Loaded mods
-				StatConflicts: Detected conflicts
-				StatHighRisk: High-risk conflicts
-				StatSystemsOverlap: Systems with overlap
+				StatConflicts: Things flagged
+				StatHighRisk: Worth your attention
+				StatSystemsOverlap: Systems with several mods
 				StatArbitration: Arbitration groups
-				StatDetectorsFailed: Failed detectors
+				StatDetectorsFailed: Failed scanners
+				AttentionTitle: "Things that need your attention:"
+				AttentionNone: "Nothing urgent. If you are seeing a bug anyway, try the Investigate tab."
+				AttentionCount: "{0} item(s) flagged red or orange. Start with the Conflicts tab."
+				StartHereTitle: "New here? Start with this:"
+				StartHere1: "1. Open the Conflicts tab — the red and orange items are the ones to look at first."
+				StartHere2: "2. If you are chasing a bug, turn on Investigation Mode (Investigate tab), reproduce it, then click Analyze."
+				StartHere3: "3. Still stuck? Export a report (Reports tab) and share it when asking for help."
 				ChangedTitle: "What changed since your last session?"
-				NoChanges: "No differences detected since the last session."
-				ChangedAdded: "Added mods: {0}"
-				ChangedRemoved: "Removed mods: {0}"
-				ChangedVersions: "Version changes: {0}"
-				ChangedNewConflicts: "{0} new conflict(s)"
-				ChangedResolved: "{0} conflict(s) no longer detected"
-				ChangedSeverity: "{0} conflict(s) changed severity"
-				ChangedLoadOrder: "{0} load-order change(s)"
+				NoChanges: "Nothing changed since the last session."
+				ChangedAdded: "Added: {0}"
+				ChangedRemoved: "Removed: {0}"
+				ChangedVersions: "Updated: {0}"
+				ChangedNewConflicts: "{0} new flag(s)"
+				ChangedResolved: "{0} flag(s) gone"
+				ChangedSeverity: "{0} flag(s) changed severity"
+				ChangedLoadOrder: "{0} load order change(s)"
 				ChangedDependencies: "{0} dependency change(s)"
 				ChangedErrors: "{0} new runtime error(s)"
-				ActionsTitle: Actions
+				ActionsTitle: Quick actions
 				Analyze: Analyze Current Situation
-				Export: Export Full Report
-				SaveSummary: Save Community Summary
+				Export: Save Full Report
+				SaveSummary: Save Short Summary
 				OpenArbitration: Manage Arbitration
-				Rescan: Rescan Now
-				RescanQueued: "Rescan queued — will run on the next frame."
+				Rescan: Scan Again
+				RescanQueued: "Scan will run on the next frame."
 			}
 
 			Mods: {
 				SearchHint: "Search mods..."
 				Filter: {
 					All: All
-					Conflicts: With conflicts
-					HighRisk: High risk
-					Patchers: Runtime patchers
+					Conflicts: Flagged
+					HighRisk: Red / orange
+					Patchers: Deep code changes
 				}
-				NoResults: "No mods match the current search/filter."
+				NoResults: "No mods match."
 				Count: "Showing {0} of {1} mods"
-				PatchTag: patches runtime code
+				PatchTag: "changes game code"
 				HooksCount: "{0} hooks"
 				Back: "< Back"
 				NotFound: "Mod not found in the current scan."
@@ -220,135 +229,160 @@ Mods: {
 				MetaVersionExpectation: Version expectation
 				MetaSortAfter: Sort after
 				MetaSortBefore: Sort before
-				MetaCodeUnavailable: Assembly not inspectable
+				MetaCodeUnavailable: Assembly not readable
 				Yes: yes
 				No: no
-				HooksTitle: "Detected hooks ({0}) by game system"
-				NoHooks: "No hook overrides detected (the mod may still register content or patch code)."
-				ContentTitle: Registered content
-				ConflictsTitle: "Conflicts involving this mod ({0})"
-				NoConflicts: "No conflicts detected for this mod."
+				HooksTitle: "What this mod changes ({0} hooks)"
+				NoHooks: "No direct hooks found (it may still add content or change game code)."
+				ContentTitle: What this mod adds
+				ConflictsTitle: "Flags involving this mod ({0})"
+				NoConflicts: "No flags for this mod."
 				DetailStatus: "Mod details — {0}"
 			}
 
 			Conflicts: {
-				SearchHint: "Search conflicts..."
+				SearchHint: "Search..."
 				Sev: {
 					All: Severity: all
-					High: High
-					Significant: Significant
-					Medium: Medium
+					High: High risk
+					Significant: Concerning
+					Medium: Watch out
 					Low: Low
 					Info: Info
 				}
 				Conf: {
-					All: Confidence: all
+					All: Certainty: all
 					Confirmed: Confirmed
 					Strong: Strong
 					Possible: Possible
 					Unknown: Unknown
 				}
 				Res: {
-					All: Resolution: all
-					Resolvable: Resolvable
-					Unresolvable: Unresolvable
+					All: Fixable: all
+					Resolvable: Fixable
+					Unresolvable: Not fixable
 				}
-				ShowMuted: Show muted
-				HideMuted: Hide muted
-				Count: "Showing {0} of {1} conflicts"
-				NoResults: "No conflicts match the current filters."
-				WhyHeader: "Why is this here?"
+				ShowMuted: Show hidden
+				HideMuted: Hide hidden
+				Count: "Showing {0} of {1}"
+				NoResults: "Nothing matches these filters."
+				IncludeQuiet: Include low/info items
+				HideQuiet: Hide low/info items
+				WhyHeader: "Why was this flagged?"
+				Details: Technical details
+				HideDetails: Hide technical details
+				ActionTitle: "What you can do:"
 				ArbitrationActive: "Arbitration: {0} — winner: {1}"
-				ArbitrationUnavailable: "Status: Detection available — automatic resolution unavailable."
-				Mute: Mute
-				Unmute: Unmute
+				ArbitrationUnavailable: "Detection only — ModHarmony cannot safely auto-fix this."
+				Mute: Hide this
+				Unmute: Show again
+				Summary: {
+					HookOverlap: "Both mods change the same part of the game."
+					GlobalClassOverlap: "Both mods add the same kind of extension."
+					ModPlayerOverlap: "Both mods change the player in the same way."
+					ModSystemOverlap: "Both mods run background systems in the same phase."
+					RecipeOverlap: "Both mods craft the same item."
+					Dependency: "There is something unusual in how these mods depend on each other."
+					ILHooks: "One or both mods change game code directly."
+					Asset: "Installed mod files collide or duplicate."
+				}
+				Action: {
+					HookOverlap: "If you see bugs with this part of the game, disable one of these mods and test again. That tells you which one is responsible."
+					GlobalClassOverlap: "Nothing to do. This is normal modding behavior."
+					ModPlayerOverlap: "If the bug involves your character, try disabling one of these mods."
+					ModSystemOverlap: "If world gen or UI looks wrong, try disabling one of these mods."
+					RecipeOverlap: "Usually nothing to do. If an item is missing from crafting, check these mods."
+					Dependency: "Nothing urgent. Update the mods involved if you see errors about them."
+					ILHooks: "This is the most likely source of weird bugs. Try disabling these mods one at a time."
+					Asset: "Remove the duplicate files listed above, then reload mods."
+				}
 				Why: {
-					HookOverlap: "Both mods override hooks that run in the same phase for the same entities. This does not prove incompatibility, but it increases the chance that their changes interact."
-					GlobalClassOverlap: "Both mods add global behavior to the same entity type. Informational — registering globals is a normal and expected part of modding."
-					ModPlayerOverlap: "Both mods attach behavior to the player in the same phase. Their effects apply to the same player at the same time."
-					ModSystemOverlap: "Both mods run systems in the same phase. This is common and usually harmless; the severity reflects how likely the overlap is to matter."
-					RecipeOverlap: "Both mods register recipes for the same result. Often intentional; can matter when recipes compete for ingredients."
-					Dependency: "The dependency graph of your modpack has an unusual property that can affect load order and feature availability."
-					ILHooks: "At least one of these mods patches game code at runtime. Runtime patches are a common source of hard-to-diagnose interactions."
-					Asset: "Installed files collide or duplicate each other."
+					HookOverlap: "Both mods change the same part of the game. That raises the chance their changes clash, but it is not proof of a bug."
+					GlobalClassOverlap: "Both mods add extensions to the same entity type. Normal and expected."
+					ModPlayerOverlap: "Both mods change the player at the same time. Effects can add up or clash."
+					ModSystemOverlap: "Both mods run systems in the same phase. Usually harmless."
+					RecipeOverlap: "Both mods register recipes for the same item. Often intentional."
+					Dependency: "The mods' dependency graph has an unusual property."
+					ILHooks: "Runtime code changes are a common source of hard-to-explain bugs."
+					Asset: "Installed files claim the same identity."
 				}
 			}
 
 			Systems: {
-				Explanation: "Game systems are the central vocabulary of ModHarmony. Below are the systems that at least two mods interact with. Click a system to see which mods touch it, which conflicts exist on it, and whether ModHarmony can arbitrate it."
-				Count: "{0} systems with overlap"
+				Explanation: "These are the parts of the game that several of your mods touch. Click one to see which mods are involved and whether ModHarmony can help."
+				Count: "{0} systems with several mods"
 				ModsCount: "{0} mods"
-				ModsTitle: "Mods touching this system ({0})"
-				NoMods: "No mods are currently detected on this system."
-				ConflictsTitle: "Conflicts on this system ({0})"
-				NoConflicts: "No conflicts on this system."
+				ModsTitle: "Mods touching this ({0})"
+				NoMods: "No mods detected here."
+				ConflictsTitle: "Flags on this system ({0})"
+				NoConflicts: "No flags here."
 				ArbitrationTitle: Arbitration
-				ArbitrationAvailable: "A ModHarmony arbitration point exists for this system. Open the Arbitration tab to configure it."
-				ArbitrationUnavailable: "Detection available — automatic resolution unavailable. ModHarmony has no technically safe mechanism to arbitrate this system."
+				ArbitrationAvailable: "ModHarmony can arbitrate this. Open the Arbitration tab to set it up."
+				ArbitrationUnavailable: "ModHarmony can see this but cannot auto-fix it safely."
 			}
 
 			Investigation: {
-				ActiveTitle: "Investigation Mode is ACTIVE"
+				ActiveTitle: "Investigation Mode is ON"
 				InactiveTitle: "Investigation Mode is off"
-				Explanation: "Investigation Mode collects safe runtime diagnostics while you play: exceptions whose stack traces involve loaded mods, and frame-time sampling. It adds a small performance cost while active, so it is off by default. Enable it when you are chasing a bug."
-				Enable: Enable Investigation Mode
-				Disable: Disable Investigation Mode
-				Clear: Clear captured events
+				Explanation: "Use this when a bug is bothering you. While on, ModHarmony watches for errors linked to your mods and tracks slow frames. It costs a little performance, so it is off by default."
+				Enable: Turn on Investigation Mode
+				Disable: Turn off Investigation Mode
+				Clear: Clear captured data
 				Analyze: Analyze Current Situation
-				ShowStacks: Show stack traces
-				HideStacks: Hide stack traces
-				PerformanceTitle: Performance sampling
+				ShowStacks: Show error details
+				HideStacks: Hide error details
+				PerformanceTitle: Performance
 				PerformanceSummary: "Current: {0}"
-				PerformanceCaveat: "Frame-time sampling measures ModHarmony's view of frame pacing only. It cannot attribute a slowdown to a specific mod."
-				EventsTitle: "Captured runtime events ({0})"
-				NoEvents: "No exceptions involving loaded mods have been captured yet."
-				NoModAttribution: "(no mod attribution)"
-				InvolvedMods: "Likely involved mods: {0}"
+				PerformanceCaveat: "This is only an estimate of frame pacing — it cannot say which mod is slow."
+				EventsTitle: "Errors captured ({0})"
+				NoEvents: "No mod-related errors captured yet."
+				NoModAttribution: "(no mod linked)"
+				InvolvedMods: "Mods that may be involved: {0}"
 				PreviewTitle: Report preview
-				Export: Export report to file
-				Status: "{0} events, {1} frame spikes"
+				Export: Save report to file
+				Status: "{0} errors, {1} slow frames"
 			}
 
 			Arbitration: {
-				EnabledTitle: "Arbitration is ENABLED"
-				DisabledTitle: "Arbitration is disabled"
-				Explanation: "Arbitration lets you decide which mod 'wins' when several mods compete over a supported system. It is strictly opt-in: detection runs always, but nothing is applied until you enable arbitration and choose a strategy."
-				SafetyNote: "ModHarmony only arbitrates systems with a technically safe mechanism, and only affects mods that opt in through the ModHarmony API. It never injects into or patches other mods' code."
-				NoGroups: "No arbitration groups exist yet. Groups appear when conflicts are detected on arbitrable systems."
-				ResolvableTitle: "Resolvable systems"
-				DetectionOnlyTitle: "Detection-only systems ({0})"
-				DetectionOnlyNote: "These systems have detected interactions but no technically safe arbitration mechanism. ModHarmony will never attempt unsafe hacks to force a resolution."
-				Unavailable: "Detection available — automatic resolution unavailable."
+				EnabledTitle: "Arbitration is ON"
+				DisabledTitle: "Arbitration is off"
+				Explanation: "When several mods fight over the same setting, you can pick who wins. It is off by default — nothing changes until you turn it on and choose a strategy."
+				SafetyNote: "ModHarmony only arbitrates systems it can do safely, and only affects mods that opt in. It never patches other mods."
+				NoGroups: "No arbitration groups yet. They appear when conflicts are found on fixable systems."
+				ResolvableTitle: "Systems you can control"
+				DetectionOnlyTitle: "Seen but not fixable ({0})"
+				DetectionOnlyNote: "ModHarmony can see these interactions but has no safe way to change the outcome."
+				Unavailable: "Seen, but not fixable."
 				Status: "{0} arbitration groups"
 				Strategy: "Strategy: {0} (click to change)"
-				Winner: "Current winner: {0}"
-				NoWinner: "No winner (disabled, no candidates, or no mechanism)."
+				Winner: "Winner: {0}"
+				NoWinner: "No winner yet."
 				Priority: "priority {0}"
 				Weight: "weight {0} (~{1}% chance)"
 				Seed: "Seed: {0}"
-				SeedAuto: "auto (deterministic from master seed)"
-				Regenerate: Regenerate Selection
-				Lock: Lock Current Decision
+				SeedAuto: "auto (stable until changed)"
+				Regenerate: Roll Again
+				Lock: Lock This Choice
 				Unlock: Unlock
-				StabilityNote: "Random and weighted decisions use a controlled, seeded RNG. They are resolved once, stay stable until you regenerate or unlock, and are persisted across sessions."
+				StabilityNote: "Random choices use a fixed seed: they are decided once and stay stable until you roll again."
 			}
 
 			Reports: {
-				Title: Reports & export
-				Explanation: "The full report is written to {Main.SavePath}/ModHarmony/reports/ as a text file you can open in any editor. The community summary is a compact block designed to paste into a Discord or GitHub issue."
-				ExportFull: Export Full Report
-				SaveSummary: Save Community Summary
-				PreviewTitle: Report preview
-				NoPreview: "No report generated yet — click Export Full Report to preview and save one."
-				ExportedTo: "Report saved to: {0}"
-				SavedTo: "Community summary saved to: {0}"
+				Title: Reports
+				Explanation: "Save a full report to a text file, or save a short summary you can paste when asking for help. Everything is saved on your computer — no internet needed."
+				ExportFull: Save Full Report
+				SaveSummary: Save Short Summary
+				PreviewTitle: Preview
+				NoPreview: "Nothing generated yet — click Save Full Report."
+				ExportedTo: "Saved to: {0}"
+				SavedTo: "Saved to: {0}"
 			}
 
 			Settings: {
 				Title: Settings
-				ConfigHint: "Full settings live in the tModLoader config UI. Below is a summary of the current state and detector health."
+				ConfigHint: "Full settings are in the tModLoader config screen (Mods → ModHarmony → gear icon). Below is the current state."
 				OpenConfig: Open ModHarmony Config
-				CurrentTitle: Current configuration
+				CurrentTitle: Current state
 				Enabled: ModHarmony enabled
 				SafeMode: Safe Diagnostics Mode
 				Arbitration: Arbitration active
@@ -356,9 +390,9 @@ Mods: {
 				RuntimeMonitoring: Runtime monitoring
 				InvestigationActive: Investigation Mode active
 				DeveloperMode: Developer Mode
-				DetectorsTitle: Detector health
-				NoScanYet: "No scan has run yet."
-				PathsTitle: Paths
+				DetectorsTitle: Scanner health
+				NoScanYet: "No scan yet."
+				PathsTitle: Folders
 				PathSave: Save path
 				PathMods: Mods folder
 				PathData: ModHarmony data
@@ -366,130 +400,130 @@ Mods: {
 		}
 
 		Systems: {
-			item_use: { Name: "Item use behavior", Description: "How items are used: use time, mana, ammo, shooting, right-click." }
-			item_damage: { Name: "Item damage", Description: "Weapon damage, knockback and crit modification through items." }
+			item_use: { Name: "Item use behavior", Description: "How items are used: speed, mana, ammo, right-click." }
+			item_damage: { Name: "Item damage", Description: "Weapon damage, knockback and crit." }
 			item_tooltip: { Name: "Item tooltips", Description: "Tooltip text and drawing." }
-			item_inventory: { Name: "Item inventory behavior", Description: "Equip effects, inventory updates, pickup and stacking." }
-			item_draw: { Name: "Item drawing", Description: "In-world and in-inventory item rendering." }
-			item_loot: { Name: "Item loot", Description: "Loot tables attached to items." }
-			item_modification: { Name: "Item global modification", Description: "Other GlobalItem behavior not covered by a more specific system." }
-			npc_ai: { Name: "NPC AI", Description: "NPC thinking, movement and behavior." }
-			npc_damage: { Name: "NPC damage", Description: "Damage dealt to and by NPCs." }
-			npc_spawn: { Name: "NPC spawning", Description: "Spawn rates, ranges and pools." }
-			npc_loot: { Name: "NPC loot", Description: "Drops and loot tables." }
-			npc_stats: { Name: "NPC stats", Description: "Life, defense, scaling, kill handling." }
+			item_inventory: { Name: "Item inventory", Description: "Equip effects, pickup, stacking." }
+			item_draw: { Name: "Item drawing", Description: "How items look in the world and inventory." }
+			item_loot: { Name: "Item loot", Description: "Loot tables on items." }
+			item_modification: { Name: "Item tweaks", Description: "Other item behavior changes." }
+			npc_ai: { Name: "NPC behavior", Description: "How enemies think and move." }
+			npc_damage: { Name: "NPC damage", Description: "Damage enemies deal and take." }
+			npc_spawn: { Name: "NPC spawning", Description: "How often and where enemies appear." }
+			npc_loot: { Name: "NPC loot", Description: "Enemy drops." }
+			npc_stats: { Name: "NPC stats", Description: "Enemy health, defense, scaling." }
 			npc_shop: { Name: "NPC shops", Description: "Shop contents and prices." }
-			npc_chat: { Name: "NPC chat", Description: "Dialogue and chat buttons." }
-			npc_draw: { Name: "NPC drawing", Description: "Rendering of NPCs." }
-			npc_collision: { Name: "NPC collision", Description: "Hitbox and collision behavior." }
-			npc_modification: { Name: "NPC global modification", Description: "Other GlobalNPC behavior not covered by a more specific system." }
-			projectile_ai: { Name: "Projectile AI", Description: "Projectile movement and behavior." }
-			projectile_damage: { Name: "Projectile damage", Description: "Damage dealt by projectiles." }
-			projectile_collision: { Name: "Projectile collision", Description: "Tiles/entity collision and cutting." }
-			projectile_draw: { Name: "Projectile drawing", Description: "Rendering of projectiles." }
-			projectile_modification: { Name: "Projectile global modification", Description: "Other GlobalProjectile behavior." }
-			player_update: { Name: "Player update", Description: "Per-frame player logic: movement, buffs, equipment updates." }
-			player_stats: { Name: "Player stats", Description: "Max stats, life regen, luck, fishing, nurse prices." }
-			player_damage: { Name: "Player damage", Description: "Damage taken and dealt by the player, dodges, death." }
-			player_inventory: { Name: "Player inventory", Description: "Inventory interactions, buying/selling, starting items." }
-			player_save: { Name: "Player save data", Description: "Custom player save/load and client sync." }
-			player_draw: { Name: "Player drawing", Description: "Player rendering and draw layers." }
-			player_lifecycle: { Name: "Player lifecycle", Description: "Connect, enter world, respawn events." }
-			buff_update: { Name: "Buff behavior", Description: "Buff application and per-tick effects." }
-			buff_tooltip: { Name: "Buff tooltips", Description: "Buff display text." }
-			buff_draw: { Name: "Buff drawing", Description: "Buff icon rendering." }
-			tile_modification: { Name: "Tile behavior", Description: "Tile drops, activation, conversion." }
-			tile_draw: { Name: "Tile drawing", Description: "Tile rendering and animation." }
-			tile_wire: { Name: "Wire logic", Description: "Wire, switch and actuator behavior." }
-			recipe_add: { Name: "Recipe additions", Description: "Recipes added during load." }
-			recipe_modify: { Name: "Recipe modification", Description: "Post-processing of other mods' recipes." }
-			recipe_remove: { Name: "Recipe removal", Description: "Recipes being hidden/disabled." }
-			recipe_group: { Name: "Recipe groups", Description: "Groups of interchangeable items in recipes." }
-			world_gen: { Name: "World generation", Description: "World structure generation passes." }
-			world_update: { Name: "World update", Description: "Per-frame world logic and invasions." }
-			world_save: { Name: "World save data", Description: "Custom world save/load." }
-			world_time: { Name: "Time & event rates", Description: "Day/night speed and event rates." }
-			world_lifecycle: { Name: "World lifecycle", Description: "World load/unload events." }
-			ui_layers: { Name: "UI layers", Description: "Interface layers and game tips." }
-			ui_update: { Name: "UI update", Description: "Per-frame UI update hooks." }
-			ui_input: { Name: "Input handling", Description: "Post-input hooks and keybind processing." }
-			rendering_draw: { Name: "Rendering", Description: "Screen position, transform and post-draw hooks." }
-			net_packets: { Name: "Network packets", Description: "Custom packet send/receive." }
-			net_hijack: { Name: "Network hijacking", Description: "Intercepting vanilla net messages." }
+			npc_chat: { Name: "NPC chat", Description: "Dialogue." }
+			npc_draw: { Name: "NPC drawing", Description: "How enemies look." }
+			npc_collision: { Name: "NPC collision", Description: "Enemy hitboxes." }
+			npc_modification: { Name: "NPC tweaks", Description: "Other enemy behavior changes." }
+			projectile_ai: { Name: "Projectile behavior", Description: "How projectiles move." }
+			projectile_damage: { Name: "Projectile damage", Description: "Damage projectiles deal." }
+			projectile_collision: { Name: "Projectile collision", Description: "What projectiles hit." }
+			projectile_draw: { Name: "Projectile drawing", Description: "How projectiles look." }
+			projectile_modification: { Name: "Projectile tweaks", Description: "Other projectile behavior changes." }
+			player_update: { Name: "Player update", Description: "Per-frame player logic." }
+			player_stats: { Name: "Player stats", Description: "Max stats, regen, luck, fishing." }
+			player_damage: { Name: "Player damage", Description: "Damage the player deals and takes." }
+			player_inventory: { Name: "Player inventory", Description: "Inventory, shops, starting items." }
+			player_save: { Name: "Player saves", Description: "Custom player data and sync." }
+			player_draw: { Name: "Player drawing", Description: "How the player looks." }
+			player_lifecycle: { Name: "Player lifecycle", Description: "Join, enter world, respawn." }
+			buff_update: { Name: "Buff behavior", Description: "Buff effects per tick." }
+			buff_tooltip: { Name: "Buff tooltips", Description: "Buff text." }
+			buff_draw: { Name: "Buff drawing", Description: "Buff icons." }
+			tile_modification: { Name: "Tile behavior", Description: "Block drops, activation, conversion." }
+			tile_draw: { Name: "Tile drawing", Description: "How blocks look." }
+			tile_wire: { Name: "Wire logic", Description: "Wires and switches." }
+			recipe_add: { Name: "Recipe additions", Description: "Recipes added by mods." }
+			recipe_modify: { Name: "Recipe changes", Description: "Mods editing other mods' recipes." }
+			recipe_remove: { Name: "Recipe removal", Description: "Recipes hidden or disabled." }
+			recipe_group: { Name: "Recipe groups", Description: "Interchangeable crafting materials." }
+			world_gen: { Name: "World generation", Description: "How worlds are created." }
+			world_update: { Name: "World update", Description: "Per-frame world logic." }
+			world_save: { Name: "World saves", Description: "Custom world data." }
+			world_time: { Name: "Time", Description: "Day/night speed and event rates." }
+			world_lifecycle: { Name: "World lifecycle", Description: "World load/unload." }
+			ui_layers: { Name: "UI layers", Description: "Interface layers." }
+			ui_update: { Name: "UI update", Description: "Per-frame UI hooks." }
+			ui_input: { Name: "Input", Description: "Key and mouse handling." }
+			rendering_draw: { Name: "Rendering", Description: "Camera and drawing hooks." }
+			net_packets: { Name: "Network packets", Description: "Custom mod packets." }
+			net_hijack: { Name: "Network intercept", Description: "Intercepting vanilla messages." }
 			dependency_cycle: { Name: "Dependency cycle", Description: "Mods depending on each other in a loop." }
-			dependency_version: { Name: "Version requirement", Description: "A mod requires a specific version of another mod." }
-			dependency_missing: { Name: "Missing dependency", Description: "A required mod is absent (cannot load)." }
-			dependency_optional: { Name: "Optional dependency", Description: "A declared optional dependency is not loaded." }
-			runtime_patch: { Name: "Runtime patching", Description: "IL edits and detours of game code." }
-			runtime_errors: { Name: "Runtime errors", Description: "Exceptions observed while playing." }
-			asset_duplicate: { Name: "Duplicate resources", Description: "Installed files claiming the same identity." }
-			content_globalItem: { Name: "GlobalItem registration", Description: "Mods adding GlobalItem behavior." }
-			content_globalNPC: { Name: "GlobalNPC registration", Description: "Mods adding GlobalNPC behavior." }
-			content_globalProjectile: { Name: "GlobalProjectile registration", Description: "Mods adding GlobalProjectile behavior." }
-			content_globalBuff: { Name: "GlobalBuff registration", Description: "Mods adding GlobalBuff behavior." }
-			content_globalTile: { Name: "GlobalTile registration", Description: "Mods adding GlobalTile behavior." }
-			content_globalWall: { Name: "GlobalWall registration", Description: "Mods adding GlobalWall behavior." }
-			content_modPlayer: { Name: "ModPlayer registration", Description: "Mods adding player systems." }
-			content_modSystem: { Name: "ModSystem registration", Description: "Mods adding global systems." }
-			content_load: { Name: "Load lifecycle", Description: "OnModLoad/PostSetupContent hooks." }
+			dependency_version: { Name: "Version requirement", Description: "A mod needs a specific version of another." }
+			dependency_missing: { Name: "Missing dependency", Description: "A required mod is absent." }
+			dependency_optional: { Name: "Optional dependency", Description: "An optional mod is not installed." }
+			runtime_patch: { Name: "Runtime code changes", Description: "Direct edits to game code." }
+			runtime_errors: { Name: "Runtime errors", Description: "Errors seen while playing." }
+			asset_duplicate: { Name: "Duplicate files", Description: "Files claiming the same identity." }
+			content_globalItem: { Name: "Item extensions", Description: "Mods extending items." }
+			content_globalNPC: { Name: "Enemy extensions", Description: "Mods extending enemies." }
+			content_globalProjectile: { Name: "Projectile extensions", Description: "Mods extending projectiles." }
+			content_globalBuff: { Name: "Buff extensions", Description: "Mods extending buffs." }
+			content_globalTile: { Name: "Tile extensions", Description: "Mods extending blocks." }
+			content_globalWall: { Name: "Wall extensions", Description: "Mods extending walls." }
+			content_modPlayer: { Name: "Player systems", Description: "Mods adding player systems." }
+			content_modSystem: { Name: "Background systems", Description: "Mods adding global systems." }
+			content_load: { Name: "Load hooks", Description: "Code run while mods load." }
 		}
 
 		Report: {
-			Title: "ModHarmony Compatibility Report"
+			Title: "ModHarmony Report"
 			Generated: "Generated: {0}"
 			GameVersions: "Terraria: {0} — tModLoader: {1}"
 			Session: "Session: {0}"
-			SectionMods: "LOADED MODS ({0})"
-			Dependencies: "dependencies: {0}"
-			WeakDependencies: "optional dependencies: {0}"
-			MissingOptional: "missing optional dependencies: {0}"
-			Hooks: "hook overrides: {0} (systems: {1})"
-			Content: "content: {0}"
-			PatchSignals: "runtime patching signals: {0}"
-			CodeUnavailable: "(assembly could not be inspected)"
-			SectionConflicts: "DETECTED CONFLICTS ({0})"
-			NoConflicts: "No conflicts were detected."
-			ConflictSystem: "system: {0} (detector {1}, id {2})"
+			SectionMods: "MODS ({0})"
+			Dependencies: "depends on: {0}"
+			WeakDependencies: "optionally uses: {0}"
+			MissingOptional: "optional mod missing: {0}"
+			Hooks: "changes: {0} hooks ({1})"
+			Content: "adds: {0}"
+			PatchSignals: "runtime code changes: {0}"
+			CodeUnavailable: "(assembly not readable)"
+			SectionConflicts: "FLAGS ({0})"
+			NoConflicts: "Nothing was flagged."
+			ConflictSystem: "system: {0} (scanner {1}, id {2})"
 			ArbitrationResolvable: "arbitration: {0} — winner: {1}"
-			ArbitrationUnavailable: "arbitration: Detection available — automatic resolution unavailable."
-			ConflictsTruncated: "(... {0} more conflicts omitted from this export)"
-			SectionSystems: "SYSTEMS WITH MOST OVERLAP"
+			ArbitrationUnavailable: "arbitration: not fixable"
+			ConflictsTruncated: "(... {0} more not shown)"
+			SectionSystems: "SYSTEMS WITH SEVERAL MODS"
 			ModsTouching: "mod(s)"
-			SectionArbitration: "ARBITRATION GROUPS ({0})"
-			ArbitrationResolved: "resolved — winner: {0}"
-			SectionRuntime: "RUNTIME DIAGNOSTICS"
-			NoRuntimeEvents: "No runtime events captured (Investigation Mode was off or nothing was captured)."
-			NoModAttribution: "no mod attribution"
-			InvolvedMods: "likely involved mods: {0}"
-			EventsTruncated: "(... {0} more events omitted)"
+			SectionArbitration: "ARBITRATION ({0})"
+			ArbitrationResolved: "winner: {0}"
+			SectionRuntime: "RUNTIME"
+			NoRuntimeEvents: "No runtime errors captured (Investigation Mode was off)."
+			NoModAttribution: "no mod linked"
+			InvolvedMods: "mods that may be involved: {0}"
+			EventsTruncated: "(... {0} more)"
 			Performance: "frame pacing: {0}"
-			DetectorFailures: "{0} detector(s) failed during the scan:"
-			SectionHealth: "MODPACK HEALTH: {0}/100 (heuristic)"
-			SectionRecommendations: "RECOMMENDED INVESTIGATION"
-			NoHighRisk: "No high-risk interactions detected — if you are experiencing a bug, enable Investigation Mode and reproduce it, then export a new report."
-			HighRiskRecommendation: "{0} high-risk interaction(s) detected. The most likely candidates to investigate:"
-			ILRecommendation: "Mods using runtime patching: {0}. If a bug appears suddenly, try disabling these one at a time."
-			GoodHealth: "This pack shows few detected interactions. Remember: detection is limited to what tModLoader exposes."
-			BadHealth: "This pack has several detected interactions. Disable mods one at a time, starting with the highest-risk pairs, and check whether the issue disappears."
-			Footer: "— ModHarmony: detect, explain, investigate, suggest. It does not pretend every interaction is a bug, and it never modifies other mods' code."
+			DetectorFailures: "{0} scanner(s) failed:"
+			SectionHealth: "MODPACK HEALTH: {0}/100 (rough guide)"
+			SectionRecommendations: "WHAT TO TRY"
+			NoHighRisk: "Nothing urgent was flagged. If a bug persists, turn on Investigation Mode, reproduce it, and export a new report."
+			HighRiskRecommendation: "{0} flag(s) worth attention. Start with:"
+			ILRecommendation: "Mods that change game code: {0}. Try disabling them one at a time if bugs appear."
+			GoodHealth: "Very few interactions detected. Remember: ModHarmony only sees what tModLoader exposes."
+			BadHealth: "Several interactions detected. Disable mods one at a time, starting with the red/orange ones."
+			Footer: "— ModHarmony: detect, explain, investigate, suggest. It never modifies other mods."
 			InvestigationTitle: "ModHarmony — Analyze Current Situation"
 			InvestigationContext: "world: {1} — mode: {2} — save path: {0}"
 			ModeServer: "server"
 			ModeClient: "client"
-			InvestigationMods: "LOADED MODS: {0}"
+			InvestigationMods: "MODS: {0}"
 			ErrorCount: "{0} error(s)"
-			InvestigationTopMods: "Mods appearing most in captured errors: {0}"
-			InvestigationSteps: "RECOMMENDED STEPS"
-			Step1: "Disable the mods listed under 'Likely involved mods', one at a time, reproducing the bug after each change."
-			Step2: "For high-risk conflict pairs, try changing the load order or disabling one member of the pair."
-			Step3: "If the error mentions a mod that uses runtime patching, that mod is a strong candidate — check for known issues or a newer version."
-			Step4: "Attach this report (or the community summary) when asking for help, so helpers see your exact mod list and versions."
-			CommunityTitle: "ModHarmony Diagnostic Summary"
+			InvestigationTopMods: "Mods appearing most in errors: {0}"
+			InvestigationSteps: "WHAT TO TRY"
+			Step1: "Disable the mods listed under 'mods that may be involved', one at a time, and test after each."
+			Step2: "For red/orange pairs, try disabling one member of the pair."
+			Step3: "If a mod that changes game code is involved, check for known issues or a newer version."
+			Step4: "Attach this report when asking for help — it shows your exact mod list and versions."
+			CommunityTitle: "ModHarmony Summary"
 			CommunityMods: "Mods ({0}):"
-			CommunityConflicts: "High-risk interactions ({0}):"
-			CommunityErrors: "Runtime errors ({0}):"
-			CommunitySystems: "Relevant systems:"
-			CommunityFooter: "— generated by ModHarmony (detect → explain → investigate → suggest)"
+			CommunityConflicts: "Worth attention ({0}):"
+			CommunityErrors: "Errors ({0}):"
+			CommunitySystems: "Systems:"
+			CommunityFooter: "— generated by ModHarmony"
 		}
 	}
 }

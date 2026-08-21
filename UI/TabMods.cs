@@ -115,11 +115,26 @@ public sealed class TabMods : TabBase
 		if (mod.PatchSignals.Count > 0)
 			nameText += $" [{L10n.Text("UI.Mods.PatchTag")}]";
 
+		// Small risk dot: worst severity among this mod's conflicts.
+		var modConflicts = ScanState.Store.GetForMod(mod.Name);
+		var worst = modConflicts.Count > 0 ? modConflicts.Max(c => c.Severity) : (Severity?)null;
+		var dotColor = worst == null ? MHColors.TextDim
+			: worst == Severity.High || worst == Severity.Significant ? MHColors.Danger
+			: worst == Severity.Medium ? MHColors.Medium
+			: worst == Severity.Low ? MHColors.Accent
+			: MHColors.Success;
+
+		row.Append(new UIText("●", 0.9f) {
+			TextColor = dotColor,
+			TextOriginX = 0f,
+			Left = new StyleDimension(2, 0f),
+			Width = new StyleDimension(18, 0f)
+		});
 		row.Append(new UIText(nameText, 0.85f) {
 			TextColor = MHColors.Text,
 			TextOriginX = 0f,
-			Left = new StyleDimension(4, 0f),
-			Width = new StyleDimension(-260, 1f)
+			Left = new StyleDimension(22, 0f),
+			Width = new StyleDimension(-280, 1f)
 		});
 		row.Append(new UIText($"v{mod.Version}", 0.7f) {
 			TextColor = MHColors.TextDim,
@@ -246,19 +261,22 @@ public sealed class TabMods : TabBase
 
 	private static void AddMeta(List<UIElement> items, string label, string value, Color? color = null)
 	{
+		// Rough wrap estimate: ~100 chars per line at 0.75 scale in the value column.
+		int lines = Math.Max(1, (value.Length + 99) / 100);
 		var row = new UIElement {
 			Width = StyleDimension.Fill,
-			Height = new StyleDimension(20, 0f)
+			Height = new StyleDimension(22 * lines, 0f)
 		};
 		row.Append(new UIText(label + ":", 0.75f) {
 			TextColor = MHColors.TextDim,
 			TextOriginX = 0f,
 			Width = new StyleDimension(180, 0f)
 		});
-		row.Append(new UIText(value, 0.75f) {
-			TextColor = color ?? MHColors.Text,
-			TextOriginX = 0f,
-			Left = new StyleDimension(190, 0f)
+		// Wrap long values (homepages, dependency lists) so they never spill
+		// off the right edge of the screen.
+		row.Append(new MHBodyText(value, 0.75f, color ?? MHColors.Text) {
+			Left = new StyleDimension(190, 0f),
+			Width = new StyleDimension(-200, 1f)
 		});
 		items.Add(row);
 	}

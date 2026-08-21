@@ -28,12 +28,25 @@ public sealed class TabOverview : TabBase
 		items.Add(new UIText(L10n.Text("UI.Overview.HealthTitle"), 0.95f, true) { TextColor = MHColors.Accent, TextOriginX = 0f });
 
 		var health = ScanState.Health;
-		var scoreText = ScanState.HasScan ? $"{health?.Score ?? -1}/100" : L10n.Text("UI.Overview.NoScanYet");
-		var score = new UIText(scoreText, 1.6f, true) {
-			TextColor = (health?.Score ?? -1) >= 70 ? MHColors.Success : (health?.Score ?? -1) >= 40 ? MHColors.Medium : MHColors.Danger,
-			TextOriginX = 0f
+		var score = ScanState.HasScan ? health?.Score ?? -1 : -1;
+		var scoreText = ScanState.HasScan ? $"{score}/100" : L10n.Text("UI.Overview.NoScanYet");
+		var verdict = score >= 70 ? L10n.Text("Health.Good") : score >= 40 ? L10n.Text("Health.Ok") : L10n.Text("Health.Bad");
+		var scoreRow = new UIElement {
+			Width = StyleDimension.Fill,
+			Height = new StyleDimension(30, 0f)
 		};
-		items.Add(score);
+		scoreRow.Append(new UIText(scoreText, 1.6f, true) {
+			TextColor = score >= 70 ? MHColors.Success : score >= 40 ? MHColors.Medium : MHColors.Danger,
+			TextOriginX = 0f,
+			Width = new StyleDimension(150, 0f)
+		});
+		scoreRow.Append(new UIText(verdict, 1.0f, true) {
+			TextColor = MHColors.Text,
+			TextOriginX = 0f,
+			Left = new StyleDimension(160, 0f),
+			VAlign = 0.5f
+		});
+		items.Add(scoreRow);
 
 		items.Add(new MHBodyText(L10n.Text("Health.Disclaimer")));
 		items.Add(new MHBodyText(L10n.Text("Health.Explanation")));
@@ -56,6 +69,21 @@ public sealed class TabOverview : TabBase
 			if ((health?.Breakdown?.Count ?? 0) == 0)
 				items.Add(new MHBodyText(L10n.Text("Health.NoDeductions")));
 		}
+		items.Add(Spacer(10));
+
+		// --- Attention -----------------------------------------------------
+		items.Add(new UIText(L10n.Text("UI.Overview.AttentionTitle"), 0.95f, true) { TextColor = MHColors.Accent, TextOriginX = 0f });
+		var attention = ScanState.Store.CountWithSeverity(Severity.High) + ScanState.Store.CountWithSeverity(Severity.Significant);
+		items.Add(new MHBodyText(attention > 0
+			? L10n.Text("UI.Overview.AttentionCount", attention.ToString())
+			: L10n.Text("UI.Overview.AttentionNone"), 0.8f, attention > 0 ? MHColors.Medium : MHColors.Success));
+		items.Add(Spacer(10));
+
+		// --- Start here (first-run guide) -----------------------------------
+		items.Add(new UIText(L10n.Text("UI.Overview.StartHereTitle"), 0.95f, true) { TextColor = MHColors.Accent, TextOriginX = 0f });
+		items.Add(new MHBodyText(L10n.Text("UI.Overview.StartHere1")));
+		items.Add(new MHBodyText(L10n.Text("UI.Overview.StartHere2")));
+		items.Add(new MHBodyText(L10n.Text("UI.Overview.StartHere3")));
 		items.Add(Spacer(10));
 
 		// --- Quick stats ---------------------------------------------------

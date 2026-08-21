@@ -12,9 +12,10 @@ using Terraria.UI;
 namespace ModHarmony.UI;
 
 /// <summary>
-/// Conflicts tab: search + severity/confidence/resolvability filters over all
-/// detected conflicts. Each card expands to show evidence, the "why is this
-/// here" explanation, arbitration status and controls, and mute/unmute.
+/// Conflicts tab: search + severity/certainty/fixable filters over all flagged
+/// interactions. Each card shows a plain-language summary and a "what you can
+/// do" line; technical evidence is tucked behind a "Technical details" toggle
+/// so normal users are not overwhelmed.
 /// </summary>
 public sealed class TabConflicts : TabBase
 {
@@ -27,6 +28,7 @@ public sealed class TabConflicts : TabBase
 	private readonly Dictionary<ConfFilter, MHButton> _confButtons = new();
 	private readonly Dictionary<ResFilter, MHButton> _resButtons = new();
 	private bool _showMuted;
+	private bool _includeQuiet = true;
 
 	private SevFilter _sev = SevFilter.All;
 	private ConfFilter _conf = ConfFilter.All;
@@ -42,53 +44,61 @@ public sealed class TabConflicts : TabBase
 
 	private void BuildToolbar()
 	{
-		_search.Width = new StyleDimension(220, 0f);
+		_search.Width = new StyleDimension(200, 0f);
 		_search.OnTextChanged += () => BuildList();
 		AddToolbar(_search, 0f);
 
-		float x = 230f;
+		float x = 210f;
 		foreach (SevFilter f in Enum.GetValues(typeof(SevFilter))) {
 			var b = new MHButton(L10n.Text($"UI.Conflicts.Sev.{f}"), 0.65f) {
-				Width = new StyleDimension(78, 0f),
+				Width = new StyleDimension(76, 0f),
 				Height = new StyleDimension(26, 0f)
 			};
 			var cap = f;
 			b.OnLeftClick += (_, _) => { _sev = cap; BuildToolbar(); BuildList(); };
 			_sevButtons[f] = b;
 			AddToolbar(b, x);
-			x += 84f;
+			x += 82f;
 		}
 
 		foreach (ConfFilter f in Enum.GetValues(typeof(ConfFilter))) {
 			var b = new MHButton(L10n.Text($"UI.Conflicts.Conf.{f}"), 0.6f) {
-				Width = new StyleDimension(72, 0f),
+				Width = new StyleDimension(70, 0f),
 				Height = new StyleDimension(26, 0f)
 			};
 			var cap = f;
 			b.OnLeftClick += (_, _) => { _conf = cap; BuildToolbar(); BuildList(); };
 			_confButtons[f] = b;
 			AddToolbar(b, x);
-			x += 78f;
+			x += 76f;
 		}
 
 		foreach (ResFilter f in Enum.GetValues(typeof(ResFilter))) {
 			var b = new MHButton(L10n.Text($"UI.Conflicts.Res.{f}"), 0.6f) {
-				Width = new StyleDimension(88, 0f),
+				Width = new StyleDimension(86, 0f),
 				Height = new StyleDimension(26, 0f)
 			};
 			var cap = f;
 			b.OnLeftClick += (_, _) => { _res = cap; BuildToolbar(); BuildList(); };
 			_resButtons[f] = b;
 			AddToolbar(b, x);
-			x += 94f;
+			x += 92f;
 		}
 
-		var mutedToggle = new MHButton(L10n.Text(_showMuted ? "UI.Conflicts.HideMuted" : "UI.Conflicts.ShowMuted"), 0.65f) {
-			Width = new StyleDimension(110, 0f),
+		var mutedToggle = new MHButton(L10n.Text(_showMuted ? "UI.Conflicts.HideMuted" : "UI.Conflicts.ShowMuted"), 0.6f) {
+			Width = new StyleDimension(92, 0f),
 			Height = new StyleDimension(26, 0f)
 		};
 		mutedToggle.OnLeftClick += (_, _) => { _showMuted = !_showMuted; BuildToolbar(); BuildList(); };
 		AddToolbar(mutedToggle, x);
+		x += 98f;
+
+		var quietToggle = new MHButton(L10n.Text(_includeQuiet ? "UI.Conflicts.HideQuiet" : "UI.Conflicts.IncludeQuiet"), 0.6f) {
+			Width = new StyleDimension(120, 0f),
+			Height = new StyleDimension(26, 0f)
+		};
+		quietToggle.OnLeftClick += (_, _) => { _includeQuiet = !_includeQuiet; BuildList(); };
+		AddToolbar(quietToggle, x);
 
 		RebuildToolbar();
 
@@ -105,6 +115,7 @@ public sealed class TabConflicts : TabBase
 		var store = ScanState.Store;
 		var conflicts = store.GetAll();
 		var query = _search.Text.Trim().ToLowerInvariant();
+		var config = ScanState.Context?.Config;
 		var items = new List<UIElement>();
 		int shown = 0;
 
@@ -136,6 +147,12 @@ public sealed class TabConflicts : TabBase
 				continue;
 			if (_res == ResFilter.Unresolvable && c.ArbitrationGroupId.Length > 0)
 				continue;
+
+			// Quiet items are hidden unless the user asks for them (or filters by them).
+			bool quiet = c.Severity == Severity.Info || (c.Severity == Severity.Low && !(config?.ShowLowRisk ?? true));
+			if (quiet && !_includeQuiet && sevFilter == null && _conf == ConfFilter.All)
+				continue;
+
 			if (query.Length > 0) {
 				var hay = string.Join(" ", c.Mods) + " " + c.SystemId + " " + c.DetectorId;
 				if (!hay.ToLowerInvariant().Contains(query))
@@ -165,58 +182,81 @@ public sealed class TabConflicts : TabBase
 		bool expanded = _expanded.Contains(c.Id);
 		float bodyHeight = expanded ? EstimateExpandedHeight(c) : 0f;
 
+		// ---- Header: severity + mods + system ----------------------------
 		var header = new UIElement {
 			Width = StyleDimension.Fill,
-			Height = new StyleDimension(30, 0f)
+			Height = new StyleDimension(26, 0f)
 		};
 
-		var severityLabel = L10n.Text("Severity." + c.Severity.LocalizationSuffix() + ".Name").ToUpperInvariant();
-		var sevText = new UIText(severityLabel, 0.7f) {
+		var severityLabel = L10n.Text("Severity." + c.Severity.LocalizationSuffix() + ".Name");
+		header.Append(new UIText(severityLabel, 0.7f) {
 			TextColor = MHColors.SeverityColor(c.Severity),
 			TextOriginX = 0f,
-			Width = new StyleDimension(120, 0f)
-		};
-		header.Append(sevText);
+			Width = new StyleDimension(110, 0f)
+		});
 
-		var mods = string.Join(" ↔ ", c.Mods.Select(DisplayNameOf));
+		var modNames = c.Mods.Select(DisplayNameOf).ToList();
+		var mods = string.Join(" ↔ ", modNames.Take(4));
+		if (modNames.Count > 4)
+			mods += $" (+{modNames.Count - 4})";
 		header.Append(new UIText(mods, 0.85f) {
 			TextColor = MHColors.Text,
 			TextOriginX = 0f,
-			Left = new StyleDimension(130, 0f),
-			Width = new StyleDimension(-500, 1f)
+			Left = new StyleDimension(118, 0f),
+			Width = new StyleDimension(-420, 1f)
 		});
 
 		header.Append(new UIText(SafeSystemName(c.SystemId), 0.7f) {
 			TextColor = MHColors.TextDim,
-			HAlign = 0.88f,
+			HAlign = 1f,
 			Width = new StyleDimension(150, 0f)
-		});
-		header.Append(new UIText(L10n.Text("Confidence." + c.Confidence.LocalizationSuffix() + ".Name"), 0.7f) {
-			TextColor = MHColors.ConfidenceColor(c.Confidence),
-			HAlign = 1f
 		});
 
 		card.Append(header);
 
+		// ---- Summary + action (always visible) ---------------------------
+		float y = 30f;
+		var summary = SummaryText(c);
+		card.Append(WrappedLine(summary, y, 0.75f, MHColors.Text));
+		y += 18f;
+
+		var action = L10n.Text($"UI.Conflicts.Action.{c.DetectorId}");
+		card.Append(WrappedLine(L10n.Text("UI.Conflicts.ActionTitle") + " " + action, y, 0.75f, MHColors.Success));
+		y += 18f;
+
+		// ---- Details toggle ----------------------------------------------
+		var detailsButton = new MHButton(L10n.Text(expanded ? "UI.Conflicts.HideDetails" : "UI.Conflicts.Details"), 0.65f) {
+			Top = new StyleDimension(y, 0f),
+			Width = new StyleDimension(150, 0f),
+			Height = new StyleDimension(24, 0f),
+			HAlign = 0f
+		};
+		detailsButton.OnLeftClick += (_, _) => {
+			if (_expanded.Contains(c.Id))
+				_expanded.Remove(c.Id);
+			else
+				_expanded.Add(c.Id);
+			BuildList();
+		};
+		card.Append(detailsButton);
+		y += 30f;
+
 		if (expanded) {
 			var body = new UIElement {
-				Top = new StyleDimension(32, 0f),
+				Top = new StyleDimension(62, 0f),
 				Width = StyleDimension.Fill,
 				Height = new StyleDimension(bodyHeight, 0f)
 			};
 
-			float y = 0f;
+			float by = 0f;
+			body.Append(WrappedLine(L10n.Text("UI.Conflicts.WhyHeader") + " " + WhyText(c), by, 0.7f, MHColors.Text));
+			by += 18f;
+
 			foreach (var e in c.Evidence) {
-				var line = EvidenceText(e);
-				body.Append(WrappedLine(line, y, 0.7f));
-				y += 20f;
+				body.Append(WrappedLine(EvidenceText(e), by, 0.7f));
+				by += 18f;
 			}
 
-			var why = WrappedLine(L10n.Text("UI.Conflicts.WhyHeader") + " " + WhyText(c), y, 0.7f, MHColors.Text);
-			body.Append(why);
-			y += 20f * EstimateWrappedLines(L10n.Text("UI.Conflicts.WhyHeader") + " " + WhyText(c));
-
-			// Arbitration status.
 			string arbitrationLine;
 			if (c.ArbitrationGroupId.Length > 0) {
 				var group = ArbitrationState.Get(c.ArbitrationGroupId);
@@ -227,16 +267,16 @@ public sealed class TabConflicts : TabBase
 			else {
 				arbitrationLine = L10n.Text("UI.Conflicts.ArbitrationUnavailable");
 			}
-			body.Append(WrappedLine(arbitrationLine, y, 0.7f, MHColors.Medium));
-			y += 22f;
+			body.Append(WrappedLine(arbitrationLine, by, 0.7f, MHColors.Medium));
+			by += 20f;
 
 			if (ScanState.Context?.Config?.DeveloperMode == true) {
-				body.Append(WrappedLine($"id={c.Id} detector={c.DetectorId} system={c.SystemId}", y, 0.65f, MHColors.TextDim));
-				y += 18f;
+				body.Append(WrappedLine($"id={c.Id} detector={c.DetectorId} system={c.SystemId}", by, 0.65f, MHColors.TextDim));
+				by += 18f;
 			}
 
 			var muteButton = new MHButton(L10n.Text(muted ? "UI.Conflicts.Unmute" : "UI.Conflicts.Mute"), 0.7f) {
-				Top = new StyleDimension(y, 0f),
+				Top = new StyleDimension(by, 0f),
 				Width = new StyleDimension(120, 0f),
 				Height = new StyleDimension(26, 0f),
 				HAlign = 0f
@@ -246,32 +286,15 @@ public sealed class TabConflicts : TabBase
 				BuildList();
 			};
 			body.Append(muteButton);
-			y += 32f;
 
 			card.Append(body);
 		}
 
-		var id = c.Id;
-		card.OnLeftClick += (_, _) => {
-			if (_expanded.Contains(id))
-				_expanded.Remove(id);
-			else
-				_expanded.Add(id);
-			BuildList();
-		};
-
-		// Keep the whole card at a fixed height by wrapping header + body.
-		card.Height = new StyleDimension(30 + bodyHeight + 12, 0f);
+		card.Height = new StyleDimension(30 + bodyHeight + 42, 0f);
 		return card;
 	}
 
-	private static float EstimateExpandedHeight(Conflict c) => 34f + c.Evidence.Count * 20f + 40f;
-
-	private static int EstimateWrappedLines(string text)
-	{
-		int len = text?.Length ?? 0;
-		return Math.Max(1, (len + 95) / 95); // ~95 chars per wrapped line at 0.7 scale
-	}
+	private static float EstimateExpandedHeight(Conflict c) => 24f + c.Evidence.Count * 18f + 70f;
 
 	private static UIElement WrappedLine(string text, float top, float scale, Color? color = null)
 	{
@@ -279,6 +302,16 @@ public sealed class TabConflicts : TabBase
 			Top = new StyleDimension(top, 0f),
 			Width = StyleDimension.Fill
 		};
+	}
+
+	private static string SummaryText(Conflict c)
+	{
+		try {
+			return L10n.Text($"UI.Conflicts.Summary.{c.DetectorId}");
+		}
+		catch {
+			return "";
+		}
 	}
 
 	private static string WhyText(Conflict c)

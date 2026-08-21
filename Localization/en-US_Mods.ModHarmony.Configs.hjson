@@ -14,111 +14,111 @@ ModHarmonyConfig: {
 
 	EnableModHarmony: {
 		Label: Enable ModHarmony
-		Tooltip: "Master switch. When disabled, no scanning or runtime monitoring runs."
+		Tooltip: "Master switch. Turn off to stop all scanning."
 	}
 
 	EnableDiagnostics: {
 		Label: Enable diagnostics
-		Tooltip: "Controls whether ModHarmony collects diagnostic information at all."
+		Tooltip: "Lets ModHarmony collect diagnostic information."
 	}
 
 	RunStartupScan: {
-		Label: Run scan on load
-		Tooltip: "Run the full compatibility scan every time mods are loaded. Disable to only scan manually from the UI."
+		Label: Scan on load
+		Tooltip: "Scan your mods every time the game loads mods."
 	}
 
 	RuntimeMonitoring: {
-		Label: Runtime monitoring (Investigation Mode)
-		Tooltip: "When enabled, ModHarmony observes exceptions involving loaded mods and samples frame times while you play. Adds a small performance cost — keep it off unless you are troubleshooting."
+		Label: Investigation Mode
+		Tooltip: "Watch for errors and slow frames while you play. Use when troubleshooting."
 	}
 
 	LogLevel: {
 		Label: Log level
-		Tooltip: "How verbose ModHarmony's own log output should be. Important conflict events are always logged."
+		Tooltip: "How much ModHarmony writes to the game log."
 	}
 
 	SafeDiagnosticsMode: {
 		Label: Safe Diagnostics Mode
-		Tooltip: "Detection only: disables arbitration application, keeps maximum diagnostic information. The recommended mode when troubleshooting."
+		Tooltip: "Detect and explain only. Never changes anything. Recommended."
 	}
 
 	ScanHooks: {
 		Label: Scan hook overlap
-		Tooltip: "Detect multiple mods overriding hooks in the same game system."
+		Tooltip: "Find mods that change the same part of the game."
 	}
 
 	ScanGlobalClasses: {
 		Label: Scan global classes
-		Tooltip: "Detect overlapping Global*/ModPlayer/ModSystem registrations."
+		Tooltip: "Find mods adding the same kind of extensions."
 	}
 
 	ScanRecipes: {
 		Label: Scan recipes
-		Tooltip: "Detect multiple mods producing the same recipe result and shared recipe groups."
+		Tooltip: "Find mods crafting the same items and shared recipe groups."
 	}
 
 	ScanAssets: {
 		Label: Scan assets
-		Tooltip: "Detect duplicate/conflicting resource identifiers at the install level."
+		Tooltip: "Find duplicate mod files that confuse updates."
 	}
 
 	ScanDependencies: {
 		Label: Scan dependencies
-		Tooltip: "Detect dependency cycles, version requirements and missing optional dependencies."
+		Tooltip: "Check dependency cycles and missing optional mods."
 	}
 
 	ScanILHooks: {
-		Label: Scan IL/runtime patches
-		Tooltip: "Detect mods that patch game code at runtime using static, verifiable signals."
+		Label: Scan deep code changes
+		Tooltip: "Find mods that change game code directly at runtime."
 	}
 
 	MaxRetainedEvents: {
-		Label: Max retained events
-		Tooltip: "Maximum number of runtime events kept by Investigation Mode's ring buffer."
+		Label: Max captured events
+		Tooltip: "How many errors Investigation Mode keeps in memory."
 	}
 
 	FrameSpikeThresholdMs: {
-		Label: Frame spike threshold (ms)
-		Tooltip: "Frames slower than this (milliseconds) are recorded as spikes by Investigation Mode."
+		Label: Slow frame threshold (ms)
+		Tooltip: "Frames slower than this are counted as slow."
 	}
 
 	EnableArbitration: {
 		Label: Enable arbitration
-		Tooltip: "Opt-in: when enabled, arbitration groups can apply their decisions at ModHarmony's arbitration points. Detection always runs; nothing is applied while this is off."
+		Tooltip: "Allow choosing which mod wins when several fight over a setting. Off by default."
 	}
 
 	DefaultStrategy: {
 		Label: Default strategy
-		Tooltip: "Strategy used for newly detected arbitration groups."
+		Tooltip: "Strategy used for new arbitration groups."
 	}
 
 	RandomSeed: {
 		Label: Master random seed
-		Tooltip: "Seed used to derive deterministic 'auto' seeds for random arbitration. Change it to get a different stable roll."
+		Tooltip: "Seed for random arbitration. Change it to get a different stable result."
 	}
 
 	PersistDecisions: {
 		Label: Persist decisions
-		Tooltip: "Save arbitration strategies, seeds, weights and winners to disk so they survive restarts."
+		Tooltip: "Remember arbitration choices between sessions."
 	}
 
 	ShowInformational: {
-		Label: Show informational conflicts
-		Tooltip: "Include informational findings in the Conflicts tab and reports."
+		Label: Show informational items
+		Tooltip: "Show harmless informational flags in the Conflicts tab."
 	}
 
 	ShowLowRisk: {
-		Label: Show low-risk conflicts
-		Tooltip: "Include low-risk findings in the Conflicts tab."
+		Label: Show low-risk items
+		Tooltip: "Show low-risk flags in the Conflicts tab."
 	}
 
 	DeveloperMode: {
 		Label: Developer Mode
-		Tooltip: "Show fully qualified type names, hook names, detector and conflict ids, and raw evidence."
+		Tooltip: "Show raw technical details (type names, ids, raw evidence)."
 	}
 
 	CompactMode: {
 		Label: Compact mode
-		Tooltip: "Reduces spacing in lists to fit more entries on screen."
+		Tooltip: "Show more entries on screen with tighter spacing."
 	}
 }

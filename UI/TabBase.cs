@@ -54,7 +54,9 @@ public abstract class TabBase : UIElement
 			TextColor = MHColors.TextDim,
 			VAlign = 1f,
 			TextOriginX = 0f,
-			Width = StyleDimension.Fill
+			Width = StyleDimension.Fill,
+			IsWrapped = true,
+			MinWidth = StyleDimension.Empty
 		};
 		Append(StatusText);
 	}
