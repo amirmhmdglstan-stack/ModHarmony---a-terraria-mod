@@ -209,7 +209,13 @@ public sealed class ModHarmonySystem : ModSystem
 	private static void SyncArbitrationGroups(DetectorContext ctx, ModHarmonyConfig config, List<Conflict> freshConflicts)
 	{
 		var groups = config.PersistDecisions ? ArbitrationStore.Load() : new List<ArbitrationGroup>();
-		var byId = groups.ToDictionary(g => g.GroupId, g => g, StringComparer.OrdinalIgnoreCase);
+		var byId = new Dictionary<string, ArbitrationGroup>(StringComparer.OrdinalIgnoreCase);
+		foreach (var group in groups) {
+			// Defensive: a corrupted/duplicated group id must not kill the scan.
+			if (string.IsNullOrEmpty(group.GroupId) || byId.ContainsKey(group.GroupId))
+				continue;
+			byId[group.GroupId] = group;
+		}
 
 		// Merge newly detected contested systems into persisted groups.
 		foreach (var conflict in freshConflicts) {
