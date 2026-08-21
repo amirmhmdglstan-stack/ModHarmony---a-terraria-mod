@@ -5,4 +5,4 @@ hideCode = false
 hideResources = false
 includeSource = false
 version = 0.1.2
-buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*, .git\*, .gitignore, build\*, test\*, docs\*, .github\*, *.sln, *.md, icon_workshop.png, INSTALL.txt
+buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*, .git\*, .gitignore, build\*, test\*, docs\*, .github\*, *.sln, *.md, icon_workshop.png, INSTALL.txt, ModHarmony-*.zip
