@@ -1,0 +1,406 @@
+================================================================================
+ ModHarmony — Modding Notes
+ Everything learned while building a tModLoader mod, the hard way.
+ (Errors, root causes, fixes, research facts, process lessons.)
+================================================================================
+
+This file is the accumulated knowledge from developing ModHarmony (a
+compatibility analyzer for tModLoader 1.4.4 / .NET 8, built against tML stable
+v2026.06.x and validated on Preview v2026.07.x). Every entry below cost real
+debugging time, usually several user rounds. Read this before touching tML mod
+code.
+
+--------------------------------------------------------------------------------
+1. THE BIG ONES (build/load blockers, in order of pain caused)
+--------------------------------------------------------------------------------
+
+1.1  THE FOLDER NAME *IS* THE MOD NAME  (the #1 trap)
+     - tModLoader derives the mod's internal name from the SOURCE FOLDER name
+       (Path.GetFileName(modFolder)), compiles with Roslyn using that name as
+       the ASSEMBLY name (CSharpCompilation.Create(mod.Name, ...)), and then
+       verifies (AssemblyManager.VerifyMod):
+           a) asmName == modName                 -> "Mod name {0} does not
+                                                     match assembly name {1}"
+           b) at least one type whose Namespace
+              starts with modName                -> "Namespace and Folder name
+                                                     do not match. The top
+                                                     level namespace must match
+                                                     the folder name."
+     - There is NO code-side workaround. The folder must be named exactly like
+       the mod's namespace. A repo folder like "ModHarmony---a-terraria-mod"
+       (hyphens!) can never pass.
+     - Fixes that work:
+         * Ship the source as a zip whose top-level folder is ALREADY named
+           correctly:  git archive --format=zip --prefix=ModHarmony/ -o ModHarmony-x.y.z.zip HEAD
+         * Add a csproj guard so the failure is obvious:
+             <Target Name="CheckModFolderName" BeforeTargets="CoreCompile">
+               <PropertyGroup>
+                 <_ModFolderName>$([System.IO.Path]::GetFileName('$(MSBuildProjectDirectory)'))</_ModFolderName>
+               </PropertyGroup>
+               <Error Condition="'$(_ModFolderName)' != 'ModHarmony'"
+                      Text="The Mod Sources folder must be named exactly 'ModHarmony' ..." />
+             </Target>
+         * INSTALL.txt at the zip root: "do not rename this folder".
+
+1.2  tML's IN-GAME COMPILER HAS NO IMPLICIT USINGS
+     - Error: CS1061 "List<T> does not contain a definition for 'Any'/'Select'"
+       (and similar) only when building in-game — it compiled fine in the IDE.
+     - Root cause: the game's Roslyn compile does not enable ImplicitUsings.
+       The SDK-style project in Visual Studio enables them by default, hiding
+       the problem.
+     - Fix: set <ImplicitUsings>disable</ImplicitUsings> in the csproj AND
+       list every using explicitly (System, System.Linq, System.IO,
+       System.Text, System.Diagnostics, System.Reflection, ...).
+     - Lesson: build with the same settings the target toolchain uses.
+
+1.3  DO NOT NAME THE log4net ILog TYPE
+     - Error: CS0246 "The type or namespace name 'ILog' could not be found".
+     - Root cause: Mod.Logger is typed as log4net ILog, but the mod compiler
+       does NOT reference log4net, so the type name isn't resolvable.
+     - Fix: never write the interface name. Capture the logger as `object`
+       and invoke Debug/Info/Warn/Error via reflection with cached
+       MethodInfos (see Common/Utilities/Log.cs). Alternatively use `var`.
+
+1.4  UIElement.OnMouseOver / OnMouseOut / OnLeftClick ARE EVENTS, NOT METHODS
+     - Error: CS0505 "'MHButton.OnMouseOver(UIMouseEvent)': cannot override
+       because 'UIElement.OnMouseOver' is not a function".
+     - Fix: subscribe:  OnMouseOver += (_, _) => ...;
+       Only DrawSelf / Update / OnInitialize etc. are overridable.
+
+1.5  Main.MouseText IS A METHOD, NOT A FIELD
+     - Error: CS1955. Fix: call Main.MouseText(...) or just don't touch it.
+
+1.6  NO ReLogic.OS.Platform / IClipboard IN CURRENT tML
+     - Error: CS0234. The old clipboard snippet (Platform.Get<IClipboard>())
+       does not exist in the current API (only an internal NativeClipboard).
+     - Fix: export text to a file instead of the clipboard.
+
+1.7  TmodFile's CONSTRUCTOR IS internal
+     - Error: CS0122. You cannot parse .tmod files with TmodFile from a mod.
+     - Fix: a .tmod is a ZIP; read the "Info" entry with
+       System.IO.Compression.ZipArchive + BinaryReader, mirroring the wire
+       format of BuildProperties.ReadFromStream (string tags then values;
+       lists are NUL-terminated string runs; unknown tag -> stop parsing).
+
+1.8  HJSON: QUOTELESS STRING VALUES INSIDE INLINE { } OBJECTS EAT THE CLOSING BRACE
+     - Error (at load, after a successful build!):
+       "The localization file 'Localization/en-US.hjson' is malformed ...
+        Name is not closed. At line NNN, column 2"
+     - Root cause (hjson-cs HjsonReader.readTfnns): a quoteless string value
+       only terminates at END OF LINE. When a value sits inside an inline
+       object, e.g.   Info: { Name: Informational }
+       the parser reads "Informational", hits '}' — but because the string
+       isn't a keyword (true/false/null) or a number, it FALLS THROUGH and
+       consumes the '}' as part of the string, continuing to EOL. The inline
+       object's closing brace is gone, the whole structure unbalances, and
+       the parser runs out of input while reading a key name -> "Name is not
+       closed".
+     - This is why `{ Name: 1 }` and `{ Name: true }` parse fine but
+       `{ Name: foo }` fails. Both the JS hjson reference and hjson-cs behave
+       this way (verified against hjson-cs source).
+     - Fixes:
+         * ALWAYS quote string values inside inline objects:
+              Info: { Name: "Informational" }
+         * Or expand to multiline objects. (A one-liner transformer that
+           quotes unquoted values inside inline braces fixed 83 lines.)
+     - Note: the Python `hjson` module gives a MISLEADING error for this
+       ("Extra data: line 6 column 2") because it auto-closes the root object
+       early. Test with hjson-cs (or the JS reference) instead.
+
+1.9  CONFIG KEY ATTRIBUTES REQUIRE A '$'-PREFIXED KEY
+     - Error (at load): ValueNotTranslationKeyException "TooltipKeyAttribute
+       only accepts localization keys for the 'key' parameter. The member
+       'EnableArbitration' ... caused this exception."
+     - Root cause: ConfigKeyAttribute (base of TooltipKey/LabelKey) treats a
+       key without a leading '$' as malformed. I dropped the '$' when
+       converting from the obsolete [Tooltip("$key")].
+     - Fix options:
+         * Use [TooltipKey("$Mods.Mod.Name.Configs....Tooltip")] (with $), or
+         * Remove the attribute entirely when the key equals the auto-derived
+           key: Mods.{Mod}.Configs.{ConfigClassName}.{Member}.{Label|Tooltip}
+           (my choice — the hjson already matched the convention).
+     - HeaderAttribute is DIFFERENT: it accepts "$key" (translation key) OR a
+       plain identifier (becomes ...Configs.Headers.{identifier}). No '$'
+       validation error for plain identifiers.
+
+1.10 icon.png MUST BE EXACTLY 80x80 (icon_small.png exactly 30x30)
+     - Symptom: mod shows the default placeholder icon, silently.
+     - Root cause: ModLoader.GetModIcon rejects any size mismatch with
+       "icon.png is not 80x80" and returns null -> placeholder. (A 64x64 icon
+       looks "valid" everywhere except tML.)
+     - Fix: resize to exactly 80x80 / 30x30 (PIL: img.resize((80,80))).
+
+1.11 CLEAR STATIC STATE ON UNLOAD
+     - Symptom (warnings in client.log): "ModHarmony mod class still using
+       memory" / "ModHarmony AssemblyLoadContext still using memory".
+     - Fix: in Mod.Unload(), null out every static reference (logger,
+       contexts, UI state, static fields). Static event subscriptions
+       (e.g. AppDomain.FirstChanceException) must be removed too.
+
+1.12 NAME SHADOWING BUGS (three distinct ones hit)
+     - A field named `List` inside a UI class shadows System.Collections.Generic.List<T>
+       in subclasses -> rename (ListPanel).
+     - A method named `Severity()` inside MHColors shadowed the `Severity`
+       enum type within that class -> switch expressions broke (CS0119
+       "'MHColors.Severity(Severity)' is a method, which is not valid in the
+       given context"). Rename the method (SeverityColor) or the enum.
+     - A CLASS named ModHarmony inside NAMESPACE ModHarmony: inside the class,
+       `ModHarmony.ScanState` resolves to the class -> CS0117. Refer to the
+       namespace members by their short name (ScanState) or via global::.
+
+1.13 NO '?.' ON STATIC TYPES
+     - Error: CS0119 + CS0176 "'ScanState' is a type, which is not valid in
+       the given context" / "Member 'ScanState.Context' cannot be accessed
+       with an instance reference".
+     - Fix: ScanState?.Context  ->  ScanState.Context?.Get(...)
+       (the null-conditional goes on the nullable member, not the type).
+
+1.14 Mod.Call HANDLERS MUST RETURN object, NOT string
+     - Error: CS0029 "Cannot implicitly convert type 'float' to 'string'".
+     - Fix: signature `object HandleCall(...)`: return null on success, an
+       error string on misuse, and the actual value (float/string) for query
+       ops. Mod.Call is object-typed.
+
+--------------------------------------------------------------------------------
+2. tModLoader ARCHITECTURE FACTS (research notes, verified against source)
+--------------------------------------------------------------------------------
+
+- Target: stable 1.4.4 branch, net8.0, LangVersion 12 (game compiles with
+  LanguageVersion.Preview). The in-game compiler is Roslyn
+  (CSharpCompilation.Create) with FNA define; it globs **/*.cs recursively,
+  minus buildIgnore patterns, bin/, obj/, and dot-files.
+- buildIgnore patterns are REGEX-based: '*' -> '.*' (matches across path
+  separators), so `test\*` excludes the whole test tree from compile+package.
+- Load order (ModContent.Load): per-mod AutoloadConfig -> Autoload -> Load()
+  -> SystemLoader.OnModLoad -> ResizeArrays -> SetupContent -> PostSetupContent
+  -> (later) SetupRecipes (Recipe.SetupRecipes; RecipeLoader.CurrentMod tracks
+  the adding mod) -> RecipeLoader.PostSetupRecipes -> ModConfig
+  ConfigManager.FinishSetup -> ... -> menus. ModSystem.PostSetupRecipes is the
+  right place for a one-time post-recipe scan.
+- ModLoader.Mods is the ordered, enabled mod list; index 0 is tML's own
+  built-in "ModLoader" mod — skip it in scans.
+- SAFE assembly inspection: AssemblyManager.GetLoadableTypes(assembly) — NOT
+  Assembly.GetTypes() (throws on weak-reference load failures). GetDependencies(mod)
+  returns the loaded dependency Mods. GetAssemblyOwner(assembly, out modName).
+- Recipe facts: Recipe.Mod (readonly, the registering mod), createItem,
+  requiredItem, requiredTile, acceptedGroups, Conditions, Ordering (tuple,
+  public), DecraftDisabled, Recipe.numRecipes, Main.recipe[].
+- RecipeGroup: recipeGroups (Dictionary<int,RecipeGroup>) and ValidItems
+  (HashSet<int>) are public; tML merges same-name groups (RegisterGroup).
+- ModConfig: public fields/properties autoload; class name = config name;
+  ConfigScope.ClientSide/ServerSide; [Header], [DefaultValue], [Range],
+  [Increment], [Slider], [ReloadRequired]; OnChanged fires on save.
+- Keybind: KeybindLoader.RegisterKeybind(mod, name, defaultKey);
+  DisplayName key is Mods.{Mod}.Keybinds.{Name}.DisplayName — PLURAL "Keybinds".
+- Localization: files Localization/en-US.hjson and en-US_{Prefix}.hjson
+  (prefix after culture). Keys: Mods.{ModName}.{rest}. Loader: LocalizationLoader.
+- ConfigKeyAttribute family: TooltipKey/LabelKey MUST start with '$';
+  HeaderAttribute accepts '$key' OR identifier.
+- UI: UIState.OnInitialize() builds the tree; UserInterface.SetState;
+  insert a LegacyGameInterfaceLayer before "Vanilla: Mouse Text";
+  UIPanel.SetPadding/PaddingTop; UIList.SetScrollbar/Add/Clear/ListPadding;
+  UIScrollbar.SetView/ViewPosition; UIText.SetText/TextColor/IsWrapped/
+  TextOriginX; click+hover are EVENTS.
+- Runtime patch conventions: types in IL./On. namespaces, methods named
+  IL_Terraria_*/On_Terraria_*, MonoMod/Mono.Cecil assembly references.
+- ModSide, [Autoload(Side = ModSide.Client)] for client-only UI systems.
+- Mod.Call: implement `public override object Call(params object[] args)`;
+  convention: null = handled, string = error, value = result.
+- GlobalNPC.EditSpawnRate(ref spawnRate, ...) lower = more spawns (invert
+  multipliers); HitModifiers.FinalDamage is a MultipliableFloat ( *= works).
+
+--------------------------------------------------------------------------------
+3. HJSON DEEP DIVE (worth its own section)
+--------------------------------------------------------------------------------
+
+- tML uses hjson-cs (patches in HjsonExtensions). Validate localization files
+  with a parser that matches its semantics — the JS reference `hjson` npm
+  package reproduced every issue I hit; Python's `hjson` module did NOT
+  (misleading auto-close behavior).
+- Quoteless string rule: terminates at EOL (not at '}' / ']'). Keyword
+  values (true/false/null) and numbers DO return at '}' — everything else
+  keeps consuming. => Quote ALL string values inside inline objects.
+- Comments: '#' to EOL. Keys with spaces or braces need quotes. Braces must
+  balance even inside strings? (strings can contain braces fine).
+- My transformer for auto-fixing inline objects:
+    match ^(\s*)(key):\{ (inner) \}$  -> split inner at top-level commas
+    (tracking quotes/braces) -> quote each value that isn't already quoted /
+    a number / true / false / null -> rejoin.
+- When the game says "Name is not closed" at the LAST line, it means the
+  parser ran out of input inside a structure — check for swallowed braces.
+
+--------------------------------------------------------------------------------
+4. CONFIG GOTCHAS
+--------------------------------------------------------------------------------
+
+- Any exception thrown while registering config localization keys DISABLES
+  the whole mod at load ("An error occurred while loading ModHarmony v0.1.0
+  ... automatically disabled"). Keep config attributes boring.
+- Long tooltips overflow the screen when hovered. Keep tooltips short
+  (<= ~80-90 chars); put detail in the tab UI instead.
+- [ReloadRequired] forces a mod reload when the value changes — don't put it
+  on things you want to apply live (runtime monitoring, safe mode).
+- ModConfig.OnChanged fires on the main thread after a save; queue work
+  (QueueRescan) rather than scanning inline.
+- Autoloaded config class name is the config's display name — name it
+  ModHarmonyConfig so keys are Mods.ModHarmony.Configs.ModHarmonyConfig.*.
+
+--------------------------------------------------------------------------------
+5. UI / UX GOTCHAS (what makes a mod usable by normal people)
+--------------------------------------------------------------------------------
+
+- Never show raw hook/type names as the primary explanation. Each conflict
+  card should read: [severity] ModA <-> ModB (system), one-line summary,
+  "What you can do: <action>". Technical evidence goes behind a toggle.
+- Hide informational/low items by default with a one-click toggle — noise is
+  why users uninstall diagnostic mods.
+- Cap long lists in headers ("ModA <-> ModB (+14)") and wrap long values
+  (homepages, dependency lists) — un-wrapped text runs off screen.
+- Give every mod row a risk dot (color-coded worst severity).
+- A first-run guide ("New here? Start with this: 1... 2... 3...") on the
+  Overview makes a tool self-explanatory.
+- Plain-language severity names: High risk / Concerning / Watch out / Low /
+  Informational (instead of "Significant conflict", "Potential conflict").
+- Friendly health verdict ("Looking good!") + "show how it was calculated".
+- Status lines must wrap (IsWrapped = true) so long paths don't clip.
+
+--------------------------------------------------------------------------------
+6. Mod.Call API DESIGN NOTES
+--------------------------------------------------------------------------------
+
+- Use stable string ops: ("RegisterArbitrableValue", systemId, modName,
+  float value, [description]); ("GetArbitratedValue", systemId) -> float;
+  ("GetArbitrationWinner", systemId) -> string; ("GetConflictCount") -> int;
+  ("GetModHealth") -> int; ("ForceRescan") -> null.
+- Validate arg types with `is not string` patterns; return error strings
+  instead of throwing. Wrap the whole handler in try/catch.
+- Only apply arbitration at ModHarmony-owned hooks (a GlobalNPC) and only
+  when a group resolves; factor 1 = no-op by default. Never touch other mods.
+- Fixture mods should call Call("op", ...) — passing the mod name as arg0 is
+  wrong (arg0 is the operation).
+
+--------------------------------------------------------------------------------
+7. BUILD / PACKAGING NOTES
+--------------------------------------------------------------------------------
+
+- The .tmod is produced by the game: ModSources -> Build -> Mods folder
+  ({SavePath}\Mods\ModHarmony.tmod). The in-game compiler is the ONLY
+  authoritative build; local `dotnet build` needs tMLMod.targets and the tML
+  references (tMLMod.targets: net8.0, LangVersion 12, references
+  $(tMLSteamPath)/tModLoader.dll + Libraries).
+- tML's RoslynCompile sets assembly name = mod folder name; it does NOT use
+  the csproj AssemblyName. Keep AssemblyName/RootNamespace/namespace/folder
+  all identical to avoid confusion.
+- For CI or local builds: download the tML release zip, extract, create a
+  shim tModLoader.targets importing $(tMLPath)/tMLMod.targets, then
+  dotnet build -p:tMLPath=...
+- GitHub Actions needs a token with 'workflows' permission to add workflow
+  files (a GitHub App token without it is rejected at push time). Keep the
+  workflow YAML in docs/ so it can be enabled later.
+- Release assets: uploads.github.com can be blocked in restricted sandboxes;
+  committing the source zip to the repo (and linking it) works from any
+  browser.
+- git archive --format=zip --prefix=ModHarmony/ HEAD builds the install zip;
+  ALWAYS commit code first, then archive (archiving from a fresh clone's
+  HEAD gave an empty-ish zip once).
+
+--------------------------------------------------------------------------------
+8. SANDBOX / WORKFLOW LESSONS (this development environment)
+--------------------------------------------------------------------------------
+
+- The environment can re-clone the repo between turns: local commits vanish
+  (branch recreated from the remote at the initial commit) while the worktree
+  files remain untracked. Mitigations:
+    * commit + push after every milestone;
+    * when resuming: git fetch origin <branch> && git reset --soft FETCH_HEAD
+      to layer any leftover changes onto the real history, then re-commit;
+    * copy critical new files aside before hard resets.
+- pip packages and /tmp are wiped between turns — reinstall
+  (tree-sitter, tree-sitter-c-sharp, hjson, pillow, rapidocr-onnxruntime,
+  opencv-python-headless) and re-run `npm install hjson` for the JS parser.
+- Network: codeload.github.com + api.github.com + github.com work;
+  raw.githubusercontent.com, release-assets.githubusercontent.com,
+  uploads.github.com, nuget.org, dot.net, apt mirrors are BLOCKED. No .NET
+  SDK available -> real compilation is impossible in-sandbox; rely on:
+    * tree-sitter C# parse (syntax) — 0 errors on the final tree;
+    * a symbol/member cross-check against the tML source;
+    * the JS hjson parser for localization files;
+    * the USER's in-game build as the real compiler (their logs are the
+      ground truth — errors arrive as CSxxxx lines in client.log).
+- Users upload logs/screenshots to the main branch: git fetch origin main,
+  git show <sha>:client.log, md5sum to detect stale uploads, OCR screenshots
+  with rapidocr (needs opencv-python-headless because of libGL).
+- Users on the PREVIEW tML can see slightly different build flows; keep
+  APIs to the shared stable surface (verified on both branches).
+
+--------------------------------------------------------------------------------
+9. DEBUGGING / PROCESS LESSONS
+--------------------------------------------------------------------------------
+
+- When a user says "still an error", ALWAYS re-fetch and check whether the
+  upload is NEW (md5sum, version strings inside the log). Several "new" bugs
+  were stale logs of already-fixed versions (v0.1.0 logs after v0.1.1 fix).
+- Read the FULL exception in client.log, not just the dialog title. The
+  dialog shows one error; the log lists every CSxxxx line.
+- The stack trace tells you the phase (build vs load vs config):
+    * RoslynCompile errors      -> "Compilation finished with N errors"
+    * LocalizationLoader        -> malformed hjson
+    * ConfigManager.FinishSetup -> config attribute problem
+    * AssemblyManager.VerifyMod -> folder/namespace problem
+- Verify hjson fixes with a parser matching hjson-cs; verify icons by size;
+  verify zips by listing entries and reading build.txt from inside.
+- Keep a version bump with every user-facing change so stale-build confusion
+  is easy to detect (v0.1.0 -> v0.1.1 -> ... -> v0.1.4).
+
+--------------------------------------------------------------------------------
+10. TESTING LESSONS
+--------------------------------------------------------------------------------
+
+- Extract pure logic (detection, arbitration, health scoring) into classes
+  with no UI/game I/O so a console harness can compile them against tML
+  references and assert on synthetic data (seeded-RNG determinism, weight
+  validation, aggregation, stable ids...).
+- The harness still needs tML references because Log.cs uses Mod.Logger —
+  keep test projects minimal (BuildMod=false) and document the requirement.
+- Test with an empty pack (no false positives), then fixture mods that
+  intentionally create each conflict type (hook overlap, recipe overlap,
+  dependency cycle, IL namespace, missing optional dep, duplicate files).
+- In-game test checklist: zero other mods; small pack; large pack; config
+  changed live; arbitration disabled/manual/random/weighted; safe mode;
+  report export; what-changed across reloads; Investigation Mode on/off.
+
+--------------------------------------------------------------------------------
+11. PRODUCT / UX LESSONS (what users actually told us)
+--------------------------------------------------------------------------------
+
+- Users will abandon a diagnostic tool if it's intimidating. The feedback
+  loop was: "too hard to use, people will throw it away" -> rewrite for
+  plain language -> every card explains itself + suggests an action ->
+  hide technical detail by default -> guide on first screen.
+- Users expect a "real product" feel: clear install, a guide in the README,
+  short tooltips, obvious next actions, honest limitations.
+- README should be a USAGE GUIDE: quick start + one section per feature
+  ("what it is" + "how to use it") + what the mod does NOT do + troubleshooting.
+- Ship a release zip whose folder is pre-named correctly; never make the
+  user rename anything.
+
+================================================================================
+ FINAL CHECKLIST BEFORE RELEASING A tML MOD
+================================================================================
+[ ] Folder name == assembly name == namespace == root namespace
+[ ] No implicit usings anywhere (set ImplicitUsings=disable)
+[ ] No log4net type names referenced
+[ ] UI events subscribed, not overridden; only real virtuals overridden
+[ ] No static-type '?.' ; no class/namespace shadowing; no field shadowing
+[ ] Localization hjson parses with hjson-cs semantics; string values in
+    inline objects are quoted; keys used in code all exist (static + pattern)
+[ ] Config keys: TooltipKey/LabelKey start with '$' or are removed (auto-key);
+    tooltips short; no exception paths in config registration
+[ ] icon.png exactly 80x80; icon_small.png exactly 30x30
+[ ] Static state cleared in Unload; event subscriptions removed
+[ ] buildIgnore excludes tests/docs/workflow/markdown/zips; test\* matches
+    recursively (regex * -> .*)
+[ ] build.txt version bumped; README matches current behavior
+[ ] Mod.Call handlers return object; arg0 is the operation string
+[ ] Build with the in-game compiler (Mod Sources -> Build) as final proof
+================================================================================
